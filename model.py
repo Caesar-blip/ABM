@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 from mesa import Model
 from mesa.space import MultiGrid
@@ -6,10 +7,80 @@ from mesa.datacollection import DataCollector
 from mesa.time import RandomActivation
 from agents import *
 
-class HousingMarket(Model):
-    def __init__(self):
-        super().__init__()
+class HouseActivation(RandomActivation):
+    def __init__(self, model):
+        super().__init__(model)
+        self.model = model
 
+    def get_available(self):
+        return [house for house in self.model.schedule_House.agents if house.available] 
+
+
+def compute_savings(model):
+    total = 0
+    for agent in model.schedule_Household.agents:
+        total += agent.savings
+    print(total)
+    return total
+
+
+def gini_coefficient(model):
+    """Compute Gini coefficient of array of values"""
+    # https://stackoverflow.com/questions/39512260/calculating-gini-coefficient-in-python-numpy
+    x = np.empty(len(model.schedule_Household.agents))
+    for i, agent in enumerate(model.schedule_Household.agents):
+        x[i] = agent.savings
+    diffsum = 0
+    for i, xi in enumerate(x[:-1], 1):
+        diffsum += np.sum(np.abs(xi - x[i:]))
+    return diffsum / (len(x)**2 * np.mean(x))
+
+
+class HousingMarket(Model):
+    def __init__(self, height=20, width=20, initial_houses=20, initial_households=30):
+        super().__init__()
+        self.height = width
+        self.width = height
+        self.initial_houses = initial_houses
+        self.initial_households = initial_households
+
+        self.grid = MultiGrid(self.width, self.height, torus=True)
+        self.stage_list = ["stage1", "stage2", "stage3"]
+        self.schedule_House = HouseActivation(self)
+        self.schedule_Household = RandomActivation(self)
+
+        self.datacollector = DataCollector({
+            "Overall Savings": compute_savings,
+            "Gini": gini_coefficient
+        })
+
+        self.initialize_population(House, self.initial_houses)
+        self.initialize_population(Household, self.initial_households)
+        self.assign_houses()
+
+
+    def initialize_population(self, agent_type, n):
+        #self.new_agent(House, (1,1))
+        #self.new_agent(House, (2,6))
+        #self.new_agent(House, (2,8))
+        #
+        #self.new_agent(Household, (2,9))
+        #self.new_agent(Household, (4,3))
+        #self.new_agent(Household, (3,3))
+        #self.new_agent(Household, (5,5))
+        for i in range(n):
+            x = random.randrange(self.width)
+            y = random.randrange(self.height)   
+            self.new_agent(agent_type, (x, y))  
+
+
+    def assign_houses(self):
+        for i in range(len(self.schedule_House.agents)):
+            self.schedule_House.agents[i].set_avalaibility(False)
+            self.schedule_Household.agents[i].house = self.schedule_House.agents[i]
+            self.schedule_House.agents[i].owner = self.schedule_Household.agents[i]
+            MultiGrid.move_agent(self=self.grid, agent=self.schedule_Household.agents[i], pos=self.schedule_House.agents[i].pos)
+            
 
     def init_population(self, agent_type, n):
         '''
@@ -21,6 +92,7 @@ class HousingMarket(Model):
 
             self.new_agent(agent_type, (x, y))
 
+
     def new_agent(self, agent_type, pos):
         '''
         Method that creates a new agent, and adds it to the correct scheduler.
@@ -30,6 +102,7 @@ class HousingMarket(Model):
         self.grid.place_agent(agent, pos)
         getattr(self, f'schedule_{agent_type.__name__}').add(agent)
 
+
     def remove_agent(self, agent):
         '''
         Method that removes an agent from the grid and the correct scheduler.
@@ -37,11 +110,15 @@ class HousingMarket(Model):
         self.grid.remove_agent(agent)
         getattr(self, f'schedule_{type(agent).__name__}').remove(agent)
 
+
     def step(self):
         '''
         Method that calls the step method
         '''
-        pass
+        self.schedule_Household.step()
+
+        self.datacollector.collect(self)
+
 
     def run_model(self, step_count=200):
         '''
