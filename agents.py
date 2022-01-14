@@ -39,7 +39,7 @@ class Household(Agent):
             # small percentage to try and buy a house even if you have a house
             if random.random() < 0.1:
                 self.house.set_avalaibility(True)
-                self.buy_house(available_houses)
+                #self.buy_house(available_houses)
         # always buy a house if you are renting
         else:
             self.buy_house(available_houses)
