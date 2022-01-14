@@ -12,13 +12,24 @@ orig_stdout = sys.stdout
 sys.stdout = open(os.devnull, 'w')
 sys.stdout = orig_stdout
 
+def choose_color(agent):
+    if type(agent) is House:
+        if agent.available == True:
+            color='green'
+        else:
+            color='red'
+    else:
+        color='blue'
+    return color
+
 def agent_portrayal(agent):
     portrayal = {"Shape": "circle",
-                 "Color": "blue" if type(agent) is House else "green",
+                 "Color": choose_color(agent),
                  "Filled": "true",
                  "Layer": 0,
                  "r": 0.5 if type(agent) is House else 0.2}
     return portrayal
+
 
 grid = CanvasGrid(agent_portrayal, 10, 10, 500, 500)
 
