@@ -49,6 +49,8 @@ class Household(Agent):
         # try to buy a house
         available_houses.sort(key=lambda x:x.price, reverse=True)
         for house in available_houses:
+            if house.owner == self:
+                continue
             # buy the best house avalaible
             if house.price < self.savings:
             # wire the money
