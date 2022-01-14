@@ -12,7 +12,6 @@ class Household(Agent):
     
         self.savings = random.randint(0,500000)
         self.income = random.randint(500, 10000)
-        #self.equity = self.savings + self.house
         self.house = None
 
 
@@ -36,7 +35,6 @@ class Household(Agent):
                 for house in available_houses:
                     if house.price > self.house.price and self.house.price < self.equity:
                         # list own house
-                        print("im here")
                         self.house.set_avalaibility(True)
             # small percentage to try and buy a house even if you have a house
             if random.random() < 0.1:
@@ -61,7 +59,6 @@ class Household(Agent):
                 # change ownership
                 self.house = house
                 self.house.owner = self
-                print("no longer avalaible")
                 house.set_avalaibility(False)
                 MultiGrid.move_agent(self=self.model.grid, agent=self, pos=house.pos)
                 break
