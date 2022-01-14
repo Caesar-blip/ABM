@@ -49,10 +49,13 @@ class Household(Agent):
         # try to buy a house
         available_houses.sort(key=lambda x:x.price, reverse=True)
         for house in available_houses:
-            if house.price < self.equity:
+            # buy the best house avalaible
+            if house.price < self.savings:
             # wire the money
                 previous_owner = house.owner
-                if previous_owner != -1:
+                if previous_owner:
+                    previous_owner.house = None
+                    MultiGrid.move_agent(self=self.model.grid, agent=previous_owner, pos=(0,0))
                     previous_owner.savings += house.price
                 self.savings -= house.price
 
@@ -70,7 +73,7 @@ class House(Agent):
         self.pos = pos        
         # set initial house price
         self.price = random.randint(0,500000)
-        self.owner = -1 
+        self.owner = None 
         self.available = True
 
     def set_avalaibility(self, set_to):
