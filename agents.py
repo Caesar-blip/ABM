@@ -37,29 +37,34 @@ class Household(Agent):
                     if house.price > self.house.price and self.house.price < self.equity:
                         # list own house
                         print("im here")
-                        self.house.set_availability(True)
-
+                        self.house.set_avalaibility(True)
+            # small percentage to try and buy a house even if you have a house
+            if random.random() < 0.1:
+                self.house.set_avalaibility(True)
+                self.buy_house(available_houses)
+        # always buy a house if you are renting
         else:
-            # try to buy a house
-            available_houses.sort(key=lambda x:x.price, reverse=True)
-            for house in available_houses:
-                if house.price < self.equity:
-                    # buy the house
-                    self.buy_house(house)
-                    break
+            self.buy_house(available_houses)
 
             
-    def buy_house(self, house):
-        # wire the money
-        previous_owner = house.owner
-        previous_owner.savings += house.price
-        self.savings -= house.price
+    def buy_house(self, available_houses):
+        # try to buy a house
+        available_houses.sort(key=lambda x:x.price, reverse=True)
+        for house in available_houses:
+            if house.price < self.equity:
+            # wire the money
+                previous_owner = house.owner
+                if previous_owner != -1:
+                    previous_owner.savings += house.price
+                self.savings -= house.price
 
-        # change ownership
-        self.house = house
-        self.house.owner = self
-        print("no longer avalaible")
-        house.set_availablity(False)
+                # change ownership
+                self.house = house
+                self.house.owner = self
+                print("no longer avalaible")
+                house.set_avalaibility(False)
+                MultiGrid.move_agent(self=self.model.grid, agent=self, pos=house.pos)
+                break
         
     
 class House(Agent):
