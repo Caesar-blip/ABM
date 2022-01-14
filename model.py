@@ -45,7 +45,7 @@ class HousingMarket(Model):
         self.new_agent(House, (1,1))
         self.new_agent(House, (2,6))
         self.new_agent(House, (2,8))
-        self.new_agent(House, (2,9))
+        self.new_agent(Household, (2,9))
         self.new_agent(Household, (4,3))
         self.new_agent(Household, (3,3))
         self.new_agent(Household, (5,5))
@@ -54,7 +54,7 @@ class HousingMarket(Model):
 
 
     def assign_houses(self):
-        for i in range(len(self.schedule_Household.agents)):
+        for i in range(len(self.schedule_House.agents)):
             self.schedule_House.agents[i].set_avalaibility(False)
             self.schedule_Household.agents[i].house = self.schedule_House.agents[i]
             self.schedule_House.agents[i].owner = self.schedule_Household.agents[i]
@@ -71,6 +71,7 @@ class HousingMarket(Model):
 
             self.new_agent(agent_type, (x, y))
 
+
     def new_agent(self, agent_type, pos):
         '''
         Method that creates a new agent, and adds it to the correct scheduler.
@@ -80,12 +81,14 @@ class HousingMarket(Model):
         self.grid.place_agent(agent, pos)
         getattr(self, f'schedule_{agent_type.__name__}').add(agent)
 
+
     def remove_agent(self, agent):
         '''
         Method that removes an agent from the grid and the correct scheduler.
         '''
         self.grid.remove_agent(agent)
         getattr(self, f'schedule_{type(agent).__name__}').remove(agent)
+
 
     def step(self):
         '''
@@ -94,6 +97,7 @@ class HousingMarket(Model):
         self.schedule_Household.step()
 
         self.datacollector.collect(self)
+
 
     def run_model(self, step_count=200):
         '''

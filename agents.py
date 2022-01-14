@@ -74,7 +74,7 @@ class House(Agent):
         super().__init__(unique_id, model)  
         self.pos = pos        
         # set initial house price
-        self.price = random.randint(0,500000)
+        self.price = random.randint(100000,500000)
         self.owner = None 
         self.available = True
 
