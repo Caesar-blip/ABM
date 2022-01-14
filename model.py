@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 from mesa import Model
 from mesa.space import MultiGrid
@@ -23,6 +24,17 @@ def compute_savings(model):
     return total
 
 
+def gini_coefficient(model):
+    """Compute Gini coefficient of array of values"""
+    # https://stackoverflow.com/questions/39512260/calculating-gini-coefficient-in-python-numpy
+    x = np.empty(len(model.schedule_Household.agents))
+    for i, agent in enumerate(model.schedule_Household.agents):
+        x[i] = agent.savings
+    diffsum = 0
+    for i, xi in enumerate(x[:-1], 1):
+        diffsum += np.sum(np.abs(xi - x[i:]))
+    return diffsum / (len(x)**2 * np.mean(x))
+
 class HousingMarket(Model):
     def __init__(self, height=10, width=10):
         super().__init__()
@@ -35,7 +47,8 @@ class HousingMarket(Model):
         self.schedule_Household = RandomActivation(self)
 
         self.datacollector = DataCollector({
-            "Overall Savings": compute_savings
+            "Overall Savings": compute_savings,
+            "Gini": gini_coefficient
         })
 
         self.initialize_population()

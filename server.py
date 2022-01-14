@@ -35,7 +35,9 @@ grid = CanvasGrid(agent_portrayal, 10, 10, 500, 500)
 
 # Create a dynamic linegraph
 chart = ChartModule([{"Label": "Overall Savings",
-                      "Color": "green"}],
+                      "Color": "green"},
+                      {"Label": "Gini",
+                      "Color": "red"}],
                     data_collector_name='datacollector')
 
 
