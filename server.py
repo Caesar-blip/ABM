@@ -31,7 +31,7 @@ def agent_portrayal(agent):
     return portrayal
 
 
-grid = CanvasGrid(agent_portrayal, 10, 10, 500, 500)
+grid = CanvasGrid(agent_portrayal, 20, 20, 500, 500)
 
 # Create a dynamic linegraph
 chart = ChartModule([{"Label": "Overall Savings",

@@ -35,11 +35,14 @@ def gini_coefficient(model):
         diffsum += np.sum(np.abs(xi - x[i:]))
     return diffsum / (len(x)**2 * np.mean(x))
 
+
 class HousingMarket(Model):
-    def __init__(self, height=10, width=10):
+    def __init__(self, height=20, width=20, initial_houses=20, initial_households=30):
         super().__init__()
         self.height = width
         self.width = height
+        self.initial_houses = initial_houses
+        self.initial_households = initial_households
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
         self.stage_list = ["stage1", "stage2", "stage3"]
@@ -51,19 +54,24 @@ class HousingMarket(Model):
             "Gini": gini_coefficient
         })
 
-        self.initialize_population()
-
-
-    def initialize_population(self):
-        self.new_agent(House, (1,1))
-        self.new_agent(House, (2,6))
-        self.new_agent(House, (2,8))
-        self.new_agent(Household, (2,9))
-        self.new_agent(Household, (4,3))
-        self.new_agent(Household, (3,3))
-        self.new_agent(Household, (5,5))
-
+        self.initialize_population(House, self.initial_houses)
+        self.initialize_population(Household, self.initial_households)
         self.assign_houses()
+
+
+    def initialize_population(self, agent_type, n):
+        #self.new_agent(House, (1,1))
+        #self.new_agent(House, (2,6))
+        #self.new_agent(House, (2,8))
+        #
+        #self.new_agent(Household, (2,9))
+        #self.new_agent(Household, (4,3))
+        #self.new_agent(Household, (3,3))
+        #self.new_agent(Household, (5,5))
+        for i in range(n):
+            x = random.randrange(self.width)
+            y = random.randrange(self.height)   
+            self.new_agent(agent_type, (x, y))  
 
 
     def assign_houses(self):
