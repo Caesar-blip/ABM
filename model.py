@@ -6,9 +6,46 @@ from mesa.datacollection import DataCollector
 from mesa.time import RandomActivation
 from agents import *
 
+class HouseActivation(RandomActivation):
+    def __init__(self, model):
+        super().__init__(model)
+        self.model = model
+
+    def get_available(self):
+        return [house for house in self.model.schedule_House.agents if house.available] 
+
+
+def compute_savings(model):
+    total = 0
+    for agents in self.schedule_Household:
+        total += agents.savings
+    
+    return total
+
+
 class HousingMarket(Model):
-    def __init__(self):
+    def __init__(self, width, height):
         super().__init__()
+        self.height = width
+        self.width = height
+
+        self.grid = MultiGrid(self.width, self.height, torus=True)
+        self.stage_list = ["stage1", "stage2", "stage3"]
+        self.schedule_House = HouseActivation(self)
+        self.schedule_Household = RandomActivation(self)
+
+        self.datacollector = DataCollector({
+            "Overall Savings": compute_savings
+        })
+
+
+    def assign_houses(self):
+        for i in range(len(self.schedule_House.agents)):
+            self.schedule_House.agents[i].set_avalaibility(False)
+            self.schedule_Household.agents[i].house = self.schedule_House.agents[i]
+            self.schedule_House.agents[i].owner = self.schedule_Household.agents[i]
+            
+
 
 
     def init_population(self, agent_type, n):
@@ -41,7 +78,7 @@ class HousingMarket(Model):
         '''
         Method that calls the step method
         '''
-        pass
+        self.schedule_Household.step()
 
     def run_model(self, step_count=200):
         '''
