@@ -11,9 +11,16 @@ class Household(Agent):
         self.pos = pos
     
         self.savings = random.randint(self.model.savings_lower,self.model.savings_upper)
-        self.income = random.randint(self.model.income_lower, self.model.income_upper)
+        # self.income = random.randint(self.model.income_lower, self.model.income_upper)
+        self.income = self.set_initial_income()
         self.house = None
 
+    def set_initial_income(self):
+        if len(self.model.incomes) == 0:
+            return random.randint(self.model.income_lower, self.model.income_upper)
+        for i in range(len(self.model.incomes)):
+            if random.random() < self.model.income_distr[i]:
+                 return random.uniform(self.model.incomes[i][0], self.model.incomes[i][1])
 
     def step(self):
         # receive income 

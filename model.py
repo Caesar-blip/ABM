@@ -4,7 +4,7 @@ import numpy as np
 from mesa import Model
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
-from mesa.time import RandomActivation
+from mesa.time import RandomActivation, StagedActivation
 from agents import *
 
 class HouseActivation(RandomActivation):
@@ -23,6 +23,14 @@ def compute_savings(model):
     
     return total
 
+def compute_mean_income(model):
+    total = 0
+    agent_count = 0
+    for agent in model.schedule_Household.agents:
+        total += agent.income
+        agent_count += 1
+    return total / agent_count
+    
 
 def gini_coefficient(model):
     """Compute Gini coefficient of array of values"""
@@ -38,7 +46,7 @@ def gini_coefficient(model):
 
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000, 
-    income_lower = 500, income_upper = 10000, savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000):
+    income_lower = 500, income_upper = 10000, savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000, incomes=[],income_distr=[]):
         super().__init__()
         self.height = width
         self.width = height
@@ -52,15 +60,21 @@ class HousingMarket(Model):
         self.savings_upper = savings_upper
         self.price_lower = price_lower
         self.price_upper = price_upper
+        self.incomes = incomes
+        self.income_distr = income_distr
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
-        self.stage_list = ["stage1", "stage2", "stage3"]
+
         self.schedule_House = HouseActivation(self)
         self.schedule_Household = RandomActivation(self)
 
+        # self.schedule_hhld = StagedActivation(self)
+        # self.schedule_hhld.stage_list = ["stage1", "stage2", "stage3"]
+
         self.datacollector = DataCollector({
             "Overall Savings": compute_savings,
-            "Gini": gini_coefficient
+            "Gini": gini_coefficient,
+            "Mean Income": compute_mean_income
         })
 
         self.initialize_population(House, self.initial_houses)
