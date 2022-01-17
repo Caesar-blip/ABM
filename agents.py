@@ -30,22 +30,23 @@ class Household(Agent):
 
         # decide whether to sell your house
         if self.house:
+            # not everybody is actively checking the market at every step
             if random.random() < 0.5:
                 for house in available_houses:
-                    if house.price > self.house.price and self.house.price < self.equity:
+                    if house.price > self.house.price and house.price < self.equity:
                         # list own house
                         self.house.set_avalaibility(True)
-            # small percentage to try and buy a house even if you have a house
+            # small percentage to try and sell your house even if you have a house
+            # this could be the increased and decreased if someone is risk averse
             if random.random() < 0.1:
                 self.house.set_avalaibility(True)
-                #self.buy_house(available_houses)
-        # always buy a house if you are renting
+        # always buy a house if you are renting, this could be enhanced if there was a bidding stage
         else:
             self.buy_house(available_houses)
 
             
     def buy_house(self, available_houses):
-        """Mehtod that let's household buy a house from antoher household
+        """Method that let's household buy a house from antoher household
 
         Args:
             available_houses (list): A list of all available houses
@@ -86,4 +87,5 @@ class House(Agent):
         self.available = set_to
 
     def step(self):
+        # this method  gets called once every year
         self.price *= self.model.house_price_change
