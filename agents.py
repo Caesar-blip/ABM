@@ -18,12 +18,11 @@ class Household(Agent):
     def step(self):
         # receive income 
         self.savings += self.income
-        if self.house == None:
-            self.savings -= self.model.rental_cost
         # calculate equity
         if self.house:
             self.equity = self.house.price + self.savings
         else:
+            self.savings -= self.model.rental_cost
             self.equity = self.savings
 
         # all available houses
