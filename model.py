@@ -37,7 +37,8 @@ def gini_coefficient(model):
 
 
 class HousingMarket(Model):
-    def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000):
+    def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000, 
+    income_lower = 500, income_upper = 10000, savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000):
         super().__init__()
         self.height = width
         self.width = height
@@ -45,6 +46,11 @@ class HousingMarket(Model):
         self.initial_households = initial_households
         self.rentals = self.initial_households - initial_houses
         self.rental_cost = rental_cost
+        self.income_lower = income_lower
+        self.income_upper = income_upper
+        self.savings_lower = savings_lower
+        self.savings_upper = savings_upper
+        self.price_lower = self.price_lower
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
         self.stage_list = ["stage1", "stage2", "stage3"]

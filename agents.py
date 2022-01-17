@@ -10,8 +10,8 @@ class Household(Agent):
         super().__init__(unique_id, model)
         self.pos = pos
     
-        self.savings = random.randint(0,500000)
-        self.income = random.randint(500, 10000)
+        self.savings = random.randint(self.model.savings_lower,self.model.savings_upper)
+        self.income = random.randint(self.model.income_lower, self.model.income_upper)
         self.house = None
 
 
@@ -79,7 +79,7 @@ class House(Agent):
         super().__init__(unique_id, model)  
         self.pos = pos        
         # set initial house price
-        self.price = random.randint(100000,500000)
+        self.price = random.randint(self.model.price_lower,self.model.price_upper)
         self.owner = None 
         self.available = True
 
