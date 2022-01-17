@@ -50,7 +50,8 @@ class HousingMarket(Model):
         self.income_upper = income_upper
         self.savings_lower = savings_lower
         self.savings_upper = savings_upper
-        self.price_lower = self.price_lower
+        self.price_lower = price_lower
+        self.price_upper = price_upper
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
         self.stage_list = ["stage1", "stage2", "stage3"]
