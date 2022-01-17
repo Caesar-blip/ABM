@@ -20,7 +20,7 @@ def compute_savings(model):
     total = 0
     for agent in model.schedule_Household.agents:
         total += agent.savings
-    print(total)
+    
     return total
 
 
@@ -37,12 +37,14 @@ def gini_coefficient(model):
 
 
 class HousingMarket(Model):
-    def __init__(self, height=20, width=20, initial_houses=20, initial_households=30):
+    def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000):
         super().__init__()
         self.height = width
         self.width = height
         self.initial_houses = initial_houses
         self.initial_households = initial_households
+        self.rentals = self.initial_households - initial_houses
+        self.rental_cost = rental_cost
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
         self.stage_list = ["stage1", "stage2", "stage3"]
@@ -60,14 +62,6 @@ class HousingMarket(Model):
 
 
     def initialize_population(self, agent_type, n):
-        #self.new_agent(House, (1,1))
-        #self.new_agent(House, (2,6))
-        #self.new_agent(House, (2,8))
-        #
-        #self.new_agent(Household, (2,9))
-        #self.new_agent(Household, (4,3))
-        #self.new_agent(Household, (3,3))
-        #self.new_agent(Household, (5,5))
         for i in range(n):
             x = random.randrange(self.width)
             y = random.randrange(self.height)   
@@ -115,9 +109,16 @@ class HousingMarket(Model):
         '''
         Method that calls the step method
         '''
+        i = 0
+        # change the housing prices every year
+        if i == 11:
+            self.house_price_change = random.random()
+            self.schedule_House.step()
+            i = 0
         self.schedule_Household.step()
 
         self.datacollector.collect(self)
+        i += 1
 
 
     def run_model(self, step_count=200):

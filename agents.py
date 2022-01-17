@@ -19,7 +19,7 @@ class Household(Agent):
         # receive income 
         self.savings += self.income
         if self.house == None:
-            self.savings -= 1000
+            self.savings -= self.model.rental_cost
         # calculate equity
         if self.house:
             self.equity = self.house.price + self.savings
@@ -46,6 +46,11 @@ class Household(Agent):
 
             
     def buy_house(self, available_houses):
+        """Mehtod that let's household buy a house from antoher household
+
+        Args:
+            available_houses (list): A list of all available houses
+        """
         # try to buy a house
         available_houses.sort(key=lambda x:x.price, reverse=True)
         for house in available_houses:
@@ -80,3 +85,6 @@ class House(Agent):
 
     def set_avalaibility(self, set_to):
         self.available = set_to
+
+    def step(self):
+        self.price *= self.model.house_price_change
