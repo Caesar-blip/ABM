@@ -11,10 +11,11 @@ class Household(Agent):
         self.pos = pos
     
         self.savings = random.randint(self.model.savings_lower,self.model.savings_upper)
-        # self.income = random.randint(self.model.income_lower, self.model.income_upper)
         self.income = self.set_initial_income()
         self.house = None
 
+
+        # attru
     def set_initial_income(self):
         if len(self.model.incomes) == 0:
             return random.randint(self.model.income_lower, self.model.income_upper)
@@ -89,6 +90,7 @@ class House(Agent):
         self.price = random.randint(self.model.price_lower,self.model.price_upper)
         self.owner = None 
         self.available = True
+
 
     def set_avalaibility(self, set_to):
         self.available = set_to

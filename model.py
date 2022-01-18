@@ -24,6 +24,7 @@ def compute_savings(model):
     
     return total
 
+
 def compute_mean_income(model):
     total = 0
     agent_count = 0
@@ -45,6 +46,12 @@ def gini_coefficient(model):
     return diffsum / (len(x)**2 * np.mean(x))
 
 
+def collect_income(Agent):
+    if type(Agent) == Household:
+        return Agent.income
+    else:
+        return None
+
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000, 
     savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000):
@@ -65,7 +72,7 @@ class HousingMarket(Model):
 
         self.schedule_House = HouseActivation(self)
         self.schedule_Household = RandomActivation(self)
-        self.schedule = self.schedule_Household
+        self.schedule = HouseActivation(self)
 
         # self.schedule_hhld = StagedActivation(self)
         # self.schedule_hhld.stage_list = ["stage1", "stage2", "stage3"]
@@ -73,7 +80,10 @@ class HousingMarket(Model):
 
         self.datacollector = DataCollector(
             model_reporters={"Gini": gini_coefficient},
-            agent_reporters={"Income": "income"})
+            agent_reporters={
+                "Income": collect_income,
+                "Price": 'price'
+            })
 
 
         self.initialize_population(House, self.initial_houses)
@@ -100,6 +110,7 @@ class HousingMarket(Model):
         cum_ratios = [x / hhld_count for x in cum_counts]
 
         return incomes, cum_ratios
+
 
     def initialize_population(self, agent_type, n):
         for i in range(n):
@@ -135,6 +146,7 @@ class HousingMarket(Model):
 
         self.grid.place_agent(agent, pos)
         getattr(self, f'schedule_{agent_type.__name__}').add(agent)
+        getattr(self, "schedule").add(agent)
 
 
     def remove_agent(self, agent):
