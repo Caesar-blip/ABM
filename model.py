@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import csv
 
 from mesa import Model
 from mesa.space import MultiGrid
@@ -46,7 +47,7 @@ def gini_coefficient(model):
 
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000, 
-    income_lower = 500, income_upper = 10000, savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000, incomes=[],income_distr=[]):
+    savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000):
         super().__init__()
         self.height = width
         self.width = height
@@ -54,33 +55,51 @@ class HousingMarket(Model):
         self.initial_households = initial_households
         self.rentals = self.initial_households - initial_houses
         self.rental_cost = rental_cost
-        self.income_lower = income_lower
-        self.income_upper = income_upper
         self.savings_lower = savings_lower
         self.savings_upper = savings_upper
         self.price_lower = price_lower
         self.price_upper = price_upper
-        self.incomes = incomes
-        self.income_distr = income_distr
+        self.incomes, self.income_distr = self.draw_income_distribution()
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
 
         self.schedule_House = HouseActivation(self)
         self.schedule_Household = RandomActivation(self)
+        self.schedule = self.schedule_Household
 
         # self.schedule_hhld = StagedActivation(self)
         # self.schedule_hhld.stage_list = ["stage1", "stage2", "stage3"]
 
-        self.datacollector = DataCollector({
-            "Overall Savings": compute_savings,
-            "Gini": gini_coefficient,
-            "Mean Income": compute_mean_income
-        })
+
+        self.datacollector = DataCollector(
+            model_reporters={"Gini": gini_coefficient},
+            agent_reporters={"Income": "income"})
+
 
         self.initialize_population(House, self.initial_houses)
         self.initialize_population(Household, self.initial_households)
         self.assign_houses()
 
+
+    def draw_income_distribution(self):
+        incomes  = []
+        counts = []
+
+        with open('input_data/incomes.csv') as file:
+            csv_reader = csv.reader(file, delimiter=',')
+            for row in csv_reader:
+                incomes.append([int(row[0])*1000/12,int(row[1])*1000/12])
+                counts.append(int(row[2]))
+
+        cum_counts = []
+        for i in range(len(counts)):
+            cum_counts.append(sum(counts[:i+1]))
+
+        hhld_count = sum(counts)
+
+        cum_ratios = [x / hhld_count for x in cum_counts]
+
+        return incomes, cum_ratios
 
     def initialize_population(self, agent_type, n):
         for i in range(n):
