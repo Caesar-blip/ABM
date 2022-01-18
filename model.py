@@ -155,6 +155,7 @@ class HousingMarket(Model):
         '''
         self.grid.remove_agent(agent)
         getattr(self, f'schedule_{type(agent).__name__}').remove(agent)
+        getattr(self, "schedule").remove(agent)
 
 
     def step(self):
