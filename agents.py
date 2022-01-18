@@ -11,12 +11,28 @@ class Household(Agent):
         self.pos = pos
     
         self.savings = random.randint(self.model.savings_lower,self.model.savings_upper)
-        self.income = self.set_initial_income()
+        self.income = self.set_income()
         self.house = None
 
+        self.age = self.set_age()
+        self.monthly_ageing = 0
 
-        # attru
-    def set_initial_income(self):
+    def set_age(self):
+        # SOME WHERE A MISTAKE IN DISTRIBUTION OF AGE OVER 50...
+        # if model is past initialisation, new agents in the model are "born" at youngest available age
+        if self.model.period > 0:
+            return 20
+        
+        # if model is initialised, distribute age following Dutch age distribution among agents
+        for i in range(len(self.model.ages)):
+            if random.random() < self.model.age_distr[i]:
+                return self.model.ages[i]
+
+
+    def set_income(self):
+        # for now even agents past initialisation get an income from generic income distribution (so not based on young age)
+        # Note: CBS has income distribution of people <25, just need to get csv and transform data again
+
         if len(self.model.incomes) == 0:
             return random.randint(self.model.income_lower, self.model.income_upper)
         for i in range(len(self.model.incomes)):
@@ -24,6 +40,15 @@ class Household(Agent):
                  return random.uniform(self.model.incomes[i][0], self.model.incomes[i][1])
 
     def step(self):
+        """
+        Step of an agent represents the actions of the agent during one month
+        """
+        self.monthly_ageing += 1
+
+        if self.monthly_ageing == 12:
+            self.age += 1
+            self.monthly_ageing = 0
+
         # receive income 
         self.savings += self.income
         # calculate equity
@@ -51,6 +76,11 @@ class Household(Agent):
         # always buy a house if you are renting, this could be enhanced if there was a bidding stage
         else:
             self.buy_house(available_houses)
+
+        # for now implement simple death rule, agent exits model at age of 100
+        if self.age == 100:
+             self.house.set_avalaibility(True)
+             self.model.remove_agent(self)
 
             
     def buy_house(self, available_houses):
