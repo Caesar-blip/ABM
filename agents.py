@@ -1,4 +1,4 @@
-from zoneinfo import available_timezones
+# from zoneinfo import available_timezones
 from mesa import Agent
 from mesa import Model
 from mesa.space import MultiGrid
@@ -110,8 +110,7 @@ class Household(Agent):
                 house.set_avalaibility(False)
                 MultiGrid.move_agent(self=self.model.grid, agent=self, pos=house.pos)
                 break
-        
-    
+
 class House(Agent):
     def __init__(self, unique_id, model, pos):
         super().__init__(unique_id, model)  
