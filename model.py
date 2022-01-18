@@ -52,6 +52,7 @@ def collect_income(Agent):
     else:
         return None
 
+
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000, 
     savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000):
@@ -162,9 +163,9 @@ class HousingMarket(Model):
         '''
         Method that calls the step method
         '''
-        i = 0
+        i = 1
         # change the housing prices every year
-        if i == 11:
+        if i == 12:
             self.house_price_change = random.random()
             self.schedule_House.step()
             i = 0
