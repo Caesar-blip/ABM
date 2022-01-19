@@ -74,10 +74,9 @@ class HousingMarket(Model):
         self.schedule_House = HouseActivation(self)
         self.schedule_Household = RandomActivation(self)
         self.schedule = HouseActivation(self)
-
+        self.running = True
         # self.schedule_hhld = StagedActivation(self)
         # self.schedule_hhld.stage_list = ["stage1", "stage2", "stage3"]
-
 
         self.datacollector = DataCollector(
             model_reporters={"Gini": gini_coefficient},
@@ -86,10 +85,10 @@ class HousingMarket(Model):
                 "Price": 'price'
             })
 
-
         self.initialize_population(House, self.initial_houses)
         self.initialize_population(Household, self.initial_households)
         self.assign_houses()
+
 
 
     def draw_income_distribution(self):
@@ -175,7 +174,7 @@ class HousingMarket(Model):
         i += 1
 
 
-    def run_model(self, step_count=200):
+    def run_model(self, step_count=2):
         '''
         Method that runs the model for a specific amount of steps.
         '''
