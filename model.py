@@ -60,7 +60,7 @@ def collect_ages(Agent):
 
 
 class HousingMarket(Model):
-    def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000, 
+    def __init__(self, height=20, width=20, initial_houses=10, initial_households=15, rental_cost=1000, 
     savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000):
         super().__init__()
         self.height = width
@@ -140,7 +140,6 @@ class HousingMarket(Model):
         # we consider housing market participants in age range 20-100
         ages = ages[20:]
         age_counts = age_counts[20:]
-
         cum_counts = []
         for i in range(len(age_counts)):
             cum_counts.append(sum(age_counts[:i+1]))

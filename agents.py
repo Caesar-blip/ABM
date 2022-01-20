@@ -19,11 +19,14 @@ class Household(Agent):
 
     def set_age(self):
         # SOME WHERE A MISTAKE IN DISTRIBUTION OF AGE OVER 50...
+
         # if model is past initialisation, new agents in the model are "born" at youngest available age
+
         if self.model.period > 0:
             return 20
         
         # if model is initialised, distribute age following Dutch age distribution among agents
+
         for i in range(len(self.model.ages)):
             if random.random() < self.model.age_distr[i]:
                 return self.model.ages[i]
@@ -32,7 +35,6 @@ class Household(Agent):
     def set_income(self):
         # for now even agents past initialisation get an income from generic income distribution (so not based on young age)
         # Note: CBS has income distribution of people <25, just need to get csv and transform data again
-
         if len(self.model.incomes) == 0:
             return random.randint(self.model.income_lower, self.model.income_upper)
         for i in range(len(self.model.incomes)):
