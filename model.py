@@ -56,7 +56,7 @@ def collect_ages(Agent):
     if type(Agent) == Household:
         return Agent.age
     else:
-        return 0
+        return None
 
 
 class HousingMarket(Model):

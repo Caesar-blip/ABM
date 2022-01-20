@@ -18,7 +18,6 @@ class Household(Agent):
         self.monthly_ageing = 0
 
     def set_age(self):
-        # SOME WHERE A MISTAKE IN DISTRIBUTION OF AGE OVER 50...
         # if model is past initialisation, new agents in the model are "born" at youngest available age
         if self.model.period > 0:
             return 20
@@ -81,8 +80,9 @@ class Household(Agent):
 
         # for now implement simple death rule, agent exits model at age of 100
         if self.age == 100:
-             self.house.set_avalaibility(True)
-             self.model.remove_agent(self)
+            if self.house:
+                self.house.set_avalaibility(True)
+            self.model.remove_agent(self)
 
             
     def buy_house(self, available_houses):
