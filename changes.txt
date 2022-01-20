@@ -15,7 +15,7 @@
 - Research question:
     How does an initial saving influence your wealth at age 70?
 
-    How does intials savings incfluence the Gini coefficient
+    How does initials savings incfluence the Gini coefficient?
 
     -Subquestion:
         What risk strategy is best when your poor/rich? 

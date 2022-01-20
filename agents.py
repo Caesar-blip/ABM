@@ -24,8 +24,9 @@ class Household(Agent):
             return 20
         
         # if model is initialised, distribute age following Dutch age distribution among agents
+        rand = random.random()
         for i in range(len(self.model.ages)):
-            if random.random() < self.model.age_distr[i]:
+            if rand < self.model.age_distr[i]:
                 return self.model.ages[i]
 
 
@@ -35,8 +36,9 @@ class Household(Agent):
 
         if len(self.model.incomes) == 0:
             return random.randint(self.model.income_lower, self.model.income_upper)
+        rand = random.random()
         for i in range(len(self.model.incomes)):
-            if random.random() < self.model.income_distr[i]:
+            if rand < self.model.income_distr[i]:
                  return random.uniform(self.model.incomes[i][0], self.model.incomes[i][1])
 
     def step(self):
