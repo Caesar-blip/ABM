@@ -56,7 +56,7 @@ def collect_ages(Agent):
     if type(Agent) == Household:
         return Agent.age
     else:
-        return 0
+        return None
 
 
 class HousingMarket(Model):
@@ -206,12 +206,11 @@ class HousingMarket(Model):
         '''
         Method that calls the step method
         '''
-        i = 1
         # change the housing prices every year
-        if i == 12:
+        if self.period % 12 == 0:
             self.house_price_change = random.random()
             self.schedule_House.step()
-            i = 0
+            
         self.schedule_Household.step()
 
         self.datacollector.collect(self)
@@ -222,7 +221,6 @@ class HousingMarket(Model):
             n_deaths = self.n_households - self.initial_households
             self.initialize_population(Household,n_deaths)
         
-        i += 1
         self.period += 1
 
     def run_model(self, step_count=200):

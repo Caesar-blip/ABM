@@ -18,17 +18,15 @@ class Household(Agent):
         self.monthly_ageing = 0
 
     def set_age(self):
-        # SOME WHERE A MISTAKE IN DISTRIBUTION OF AGE OVER 50...
-
         # if model is past initialisation, new agents in the model are "born" at youngest available age
 
         if self.model.period > 0:
             return 20
         
         # if model is initialised, distribute age following Dutch age distribution among agents
-
+        rand = random.random()
         for i in range(len(self.model.ages)):
-            if random.random() < self.model.age_distr[i]:
+            if rand < self.model.age_distr[i]:
                 return self.model.ages[i]
 
 
@@ -37,8 +35,9 @@ class Household(Agent):
         # Note: CBS has income distribution of people <25, just need to get csv and transform data again
         if len(self.model.incomes) == 0:
             return random.randint(self.model.income_lower, self.model.income_upper)
+        rand = random.random()
         for i in range(len(self.model.incomes)):
-            if random.random() < self.model.income_distr[i]:
+            if rand < self.model.income_distr[i]:
                  return random.uniform(self.model.incomes[i][0], self.model.incomes[i][1])
 
     def step(self):
@@ -81,8 +80,9 @@ class Household(Agent):
 
         # for now implement simple death rule, agent exits model at age of 100
         if self.age == 100:
-             self.house.set_avalaibility(True)
-             self.model.remove_agent(self)
+            if self.house:
+                self.house.set_avalaibility(True)
+            self.model.remove_agent(self)
 
             
     def buy_house(self, available_houses):

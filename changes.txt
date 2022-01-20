@@ -1,0 +1,21 @@
+1. Initiliaze population:
+    - Uniform age distribution between 20 and 99
+    - Draw income from age distribution, so it's not a paramater
+    - Housing and rental prices from CBS distribution
+    - Initial savings from normal distribution mean 50000, variance 50000
+    - Risk averse index
+2. Burnin period:
+    - Let the model run for 80 steps, now there is a whole new population
+    - Start measuring the effect of initial savings for whealth throughout life
+3. During the run:
+    - When an agent dies, initialize a new one
+    - When agent ages, change there income
+    - At every step, give them a chance to list their home based on utility
+
+- Research question:
+    How does an initial saving influence your wealth at age 70?
+
+    How does initials savings incfluence the Gini coefficient?
+
+    -Subquestion:
+        What risk strategy is best when your poor/rich? 
