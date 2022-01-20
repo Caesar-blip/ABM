@@ -61,14 +61,20 @@ def collect_ages(Agent):
 
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=10, initial_households=15, rental_cost=1000, 
-    savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000):
+    savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000, payoff_perc_freehold=0.0025):
         super().__init__()
         self.height = width
         self.width = height
         self.initial_houses = initial_houses
         self.initial_households = initial_households
         self.rentals = self.initial_households - initial_houses
+
+        # rental_cost is obsolete now, we use payoff_perc_freehold
         self.rental_cost = rental_cost
+
+        # determines the percentage of house price that you pay off
+        self.payoff_perc_freehold = payoff_perc_freehold
+
         self.savings_lower = savings_lower
         self.savings_upper = savings_upper
         self.price_lower = price_lower

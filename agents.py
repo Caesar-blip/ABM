@@ -54,9 +54,10 @@ class Household(Agent):
         self.savings += self.income
         # calculate equity
         if self.house:
+            self.savings += self.model.payoff_perc_freehold * self.house.price 
             self.equity = self.house.price + self.savings
         else:
-            self.savings -= self.model.rental_cost
+            # self.savings -= self.model.rental_cost
             self.equity = self.savings
 
         # all available houses
