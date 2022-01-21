@@ -72,7 +72,12 @@ def age_20_savings(model):
             age_savings += agent.savings
             age_count += 1 
 
-    return age_savings/age_count
+    if age_count == 0:
+        return age_savings
+    else:
+        return age_savings/age_count
+
+
 
 def age_40_savings(model):
     age_savings = 0
@@ -83,7 +88,10 @@ def age_40_savings(model):
             age_savings += agent.savings
             age_count += 1 
 
-    return age_savings/age_count
+    if age_count == 0:
+        return age_savings
+    else:
+        return age_savings/age_count
 
 def age_60_savings(model):
     age_savings = 0
@@ -94,7 +102,10 @@ def age_60_savings(model):
             age_savings += agent.savings
             age_count += 1 
 
-    return age_savings/age_count
+    if age_count == 0:
+        return age_savings
+    else:
+        return age_savings/age_count
 
 def age_100_savings(model):
     age_savings = 0

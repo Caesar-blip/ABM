@@ -39,7 +39,9 @@ grid = CanvasGrid(agent_portrayal, 20, 20, 500, 500)
 chart = ChartModule([
                       {"Label": "Gini","Color": "red"}
 		      ],
-                    data_collector_name='datacollector')
+                    data_collector_name='datacollector',
+                    canvas_width = 500, canvas_height = 500 
+		    )
 
 
 chart2 = ChartModule([
@@ -49,6 +51,7 @@ chart2 = ChartModule([
                       {"Label": "Age 60 Savings", "Color": "red"},
                       {"Label": "Age 100 Savings", "Color": "green"},
 		      ],
+                    canvas_width = 500, canvas_height = 500, 
                     data_collector_name='datacollector')
 
 # Create the server, and pass the grid and the graph
