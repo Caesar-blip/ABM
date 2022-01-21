@@ -18,19 +18,13 @@ class HouseActivation(RandomActivation):
         return [house for house in self.model.schedule_House.agents if house.available]
 
 
-def compute_savings(model):
-    total = 0
-    count = 0
-    for agent in model.schedule_Household.agents:
-        total += agent.savings
-        count += 1
-
-    return total / count
+'''
+Model level data collection
+'''
 
 
-def compute_mean_income(model):
-    total = 0
-    agent_count = 0
+def average_household_income(model):
+    total = 0   ;   agent_count = 0
     for agent in model.schedule_Household.agents:
         total += agent.income
         agent_count += 1
@@ -63,133 +57,112 @@ def collect_ages(Agent):
         return None
 
 
-'''
-Model level data collection
-'''
+def mean_household_age(model):
+    ages = 0 ;   counter = 0
+    for agent in model.schedule_Household.agents:
+        ages += agent.age
+        counter += 1
+
+    return ages / counter
 
 
-def age__savings(model):
-    age_savings = 0
-    age_count = 0
+def average_savings(model):
+    age_savings = 0 ;   age_count = 0
 
     for agent in model.schedule_Household.agents:
-        if agent.age in range(41, 60):
-            age_savings += agent.savings
-            age_count += 1
+        age_savings += agent.savings
+        age_count += 1
 
-    if age_count == 0:
-        return age_savings
-    else:
-        return age_savings / age_count
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
 
 
 def age_25_minus_savings(model):
-    age_savings = 0
-    age_count = 0
+    age_savings = 0 ;   age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(18, 25):
             age_savings += agent.savings
             age_count += 1
 
-    if age_count == 0:
-        return age_savings
-    else:
-        return age_savings / age_count
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
 
 
 def age_25_34_savings(model):
-    age_savings = 0
-    age_count = 0
+    age_savings = 0 ;   age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(25, 35):
             age_savings += agent.savings
             age_count += 1
 
-    if age_count == 0:
-        return age_savings
-    else:
-        return age_savings / age_count
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
 
 
 def age_35_44_savings(model):
-    age_savings = 0
-    age_count = 0
+    age_savings = 0 ;   age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(35, 45):
             age_savings += agent.savings
             age_count += 1
 
-    if age_count == 0:
-        return age_savings
-    else:
-        return age_savings / age_count
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
 
 
 def age_45_54_savings(model):
-    age_savings = 0
-    age_count = 0
+    age_savings = 0 ;age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(45, 55):
             age_savings += agent.savings
             age_count += 1
 
-    if age_count == 0:
-        return age_savings
-    else:
-        return age_savings / age_count
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
 
 
 def age_55_64_savings(model):
-    age_savings = 0
-    age_count = 0
+    age_savings = 0 ;   age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(55, 65):
             age_savings += agent.savings
             age_count += 1
 
-    if age_count == 0:
-        return age_savings
-    else:
-        return age_savings / age_count
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
 
 
 def age_65_74_savings(model):
-    age_savings = 0
-    age_count = 0
+    age_savings = 0 ;   age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(65, 75):
             age_savings += agent.savings
             age_count += 1
 
-    if age_count == 0:
-        return age_savings
-    else:
-        return age_savings / age_count
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
 
 
 def age_75_plus_savings(model):
-    age_savings = 0
-    age_count = 0
+    age_savings = 0 ;age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(75, 101):
             age_savings += agent.savings
             age_count += 1
 
-    if age_count == 0:
-        return age_savings
-    else:
-        return age_savings / age_count
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
 
 
 class HousingMarket(Model):
-    def __init__(self, height=20, width=20, initial_houses=10, initial_households=15, rental_cost=1000,
+    def __init__(self, height=20, width=20, initial_houses=100, initial_households=150, rental_cost=1000,
                  savings_lower=0, savings_upper=500000, price_lower=100000, price_upper=1000000,
                  payoff_perc_freehold=0.0025):
         super().__init__()
@@ -229,7 +202,7 @@ class HousingMarket(Model):
         self.datacollector = DataCollector(
             model_reporters={
                 "Gini": gini_coefficient,
-                "Average Savings": compute_savings,
+                "Average Savings": average_savings,
                 "Age -25 Savings": age_25_minus_savings,
                 "Age 25-34 Savings": age_25_34_savings,
                 "Age 35-44 Savings": age_35_44_savings,
@@ -237,14 +210,15 @@ class HousingMarket(Model):
                 "Age 55-64 Savings": age_55_64_savings,
                 "Age 65-74 Savings": age_65_74_savings,
                 "Age 75+ Savings": age_75_plus_savings,
-
+                "Average Household Income": average_household_income,
+                'Mean Household Age': mean_household_age
             },
             agent_reporters={
                 "Income": collect_income,
                 "Price": 'price',
                 "Age": collect_ages
             })
-
+        print(self.initial_houses)
         self.initialize_population(House, self.initial_houses)
         self.initialize_population(Household, self.initial_households)
         self.assign_houses()
@@ -299,8 +273,10 @@ class HousingMarket(Model):
             self.new_agent(agent_type, (x, y))
 
     def assign_houses(self):
-        for i in range(len(self.schedule_House.agents)):
-            self.schedule_House.agents[i].set_avalaibility(False)
+        _len = len(self.schedule_House.agents)
+        if len(self.schedule_Household.agents) < len(self.schedule_House.agents) : _len = len(self.schedule_Household.agents)
+        for i in range(_len):
+            self.schedule_House.agents[i].set_availability(False)
             self.schedule_Household.agents[i].house = self.schedule_House.agents[i]
             self.schedule_House.agents[i].owner = self.schedule_Household.agents[i]
             MultiGrid.move_agent(self=self.grid, agent=self.schedule_Household.agents[i],
@@ -350,7 +326,6 @@ class HousingMarket(Model):
             self.schedule_House.step()
 
         self.schedule_Household.step()
-
         self.datacollector.collect(self)
 
         # check if population is still of same size 

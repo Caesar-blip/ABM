@@ -47,7 +47,7 @@ gini_char = ChartModule(
                     [{"Label": "Gini", "Color": "red"}],
                     data_collector_name='datacollector',
                     canvas_width=500,
-                    canvas_height=500)
+                    canvas_height=200)
 
 
 average_savings_chart = ChartModule([
@@ -58,17 +58,30 @@ average_savings_chart = ChartModule([
                     {"Label": "Age 55-64 Savings", "Color": "E9D8A6"},
                     {"Label": "Age 65-74 Savings", "Color": "EE9B00"},
                     {"Label": "Age 75+ Savings", "Color": "AE2012"}],
-                    canvas_width=500, canvas_height=500,
+                    canvas_width=500, canvas_height=200,
+                    data_collector_name='datacollector')
+
+
+average_income_chart = ChartModule([
+                    {"Label": "Average Household Income", "Color": 'red'}],
+                    canvas_width=500, canvas_height=200,
+                    data_collector_name='datacollector')
+
+
+mean_household_age_chart = ChartModule([
+                    {"Label": "Mean Household Age", "Color": 'green'}],
+                    canvas_width=500, canvas_height=200,
                     data_collector_name='datacollector')
 
 # Create the server, and pass the grid and the graph
 server = ModularServer(
                     HousingMarket,
-                    [grid, gini_char, average_savings_chart],
+                    [grid, gini_char, average_savings_chart, average_income_chart, mean_household_age_chart],
                     "Housing Market Model",
-                    {})
-HousingMarket.initial_houses = 100
-HousingMarket.initial_households = 90
+                    {'rental_cost': 2000,
+                     'initial_houses': 900,
+                     'initial_households': 1000
+                     })
 
 server.port = 8522
 server.launch()

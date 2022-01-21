@@ -3,18 +3,21 @@ from mesa import Agent
 from mesa import Model
 from mesa.space import MultiGrid
 import random
+import scipy
+import numpy as np
 
 
 class Household(Agent):
     def __init__(self, unique_id, model, pos):
         super().__init__(unique_id, model)
         self.pos = pos
-    
-        self.savings = random.randint(self.model.savings_lower,self.model.savings_upper)
+
+        self.savings = random.randint(self.model.savings_lower, self.model.savings_upper)
+        self.age = self.set_age()
+
         self.income = self.set_income()
         self.house = None
 
-        self.age = self.set_age()
         self.monthly_ageing = 0
 
     def set_age(self):
@@ -22,7 +25,7 @@ class Household(Agent):
 
         if self.model.period > 0:
             return 20
-        
+
         # if model is initialised, distribute age following Dutch age distribution among agents
         rand = random.random()
         for i in range(len(self.model.ages)):
@@ -30,14 +33,108 @@ class Household(Agent):
                 return self.model.ages[i]
 
     def set_income(self):
-        # for now even agents past initialisation get an income from generic income distribution (so not based on young age)
-        # Note: CBS has income distribution of people <25, just need to get csv and transform data again
-        if len(self.model.incomes) == 0:
-            return random.randint(self.model.income_lower, self.model.income_upper)
-        rand = random.random()
-        for i in range(len(self.model.incomes)):
-            if rand < self.model.income_distr[i]:
-                 return random.uniform(self.model.incomes[i][0], self.model.incomes[i][1])
+        age = self.age
+        step = 0  # TODO : get step from model
+        age_coef_dict = {
+            18: 0.15190790211711158,
+            19: 0.2352803285733691,
+            20: 0.28917488419300963,
+            21: 0.3235238459215871,
+            22: 0.38186837776123933,
+            23: 0.4656984696436133,
+            24: 0.5180297776234675,
+            25: 0.6476242253202377,
+            26: 0.6864301922600129,
+            27: 0.7556463866672888,
+            28: 0.7403816046083588,
+            29: 0.8065922023844624,
+            30: 0.8232749662653331,
+            31: 0.9226411592664203,
+            32: 0.9170315557005079,
+            33: 0.9228596827924056,
+            34: 0.9451169052832582,
+            35: 1.0359230366181207,
+            36: 1.063442942909901,
+            37: 1.079785503617365,
+            38: 1.042574805277224,
+            39: 1.0970818203288792,
+            40: 1.1360596070532032,
+            41: 1.2049768350353642,
+            42: 1.1134926403507501,
+            43: 1.3008241588488905,
+            44: 1.163347869035451,
+            45: 1.2355576326889808,
+            46: 1.1751529816325876,
+            47: 1.2238891949204627,
+            48: 1.073537042852539,
+            49: 1.1786549812413019,
+            50: 1.2763276559659535,
+            51: 1.183640097990281,
+            52: 1.2539649986073098,
+            53: 1.2621347169630002,
+            54: 1.2090872328811855,
+            55: 1.2075616293941958,
+            56: 1.2005124884333722,
+            57: 1.2205318363303777,
+            58: 1.142836491755419,
+            59: 1.2281186170170353,
+            60: 1.1463919116971477,
+            61: 1.2119927054379072,
+            62: 1.2124939506093775,
+            63: 1.2057006649277273,
+            64: 1.1496953813548059,
+            65: 1.1624445655681364,
+            66: 1.2385043419939938,
+            67: 1.4596112565399266,
+            68: 1.3144227575971088,
+            69: 1.2880937186120562,
+            70: 1.1896895602046387,
+            71: 1.198750867042334,
+            72: 1.537697569224636,
+            73: 1.4410072350681913,
+            74: 1.098669435138111,
+            75: 1.1062093558835275,
+            76: 1.1062093558835275,
+            77: 1.1062093558835275,
+            78: 1.1062093558835275,
+            79: 1.1062093558835275,
+            80: 1.1062093558835275,
+            81: 1.1062093558835275,
+            82: 1.1062093558835275,
+            83: 1.1062093558835275,
+            84: 1.1062093558835275,
+            85: 1.1062093558835275,
+            86: 1.1062093558835275,
+            87: 1.1062093558835275,
+            88: 1.1062093558835275,
+            89: 1.1062093558835275,
+            90: 1.1062093558835275,
+            91: 1.1062093558835275,
+            92: 1.1062093558835275,
+            93: 1.1062093558835275,
+            94: 1.1062093558835275,
+            95: 1.1062093558835275,
+            96: 1.1062093558835275,
+            97: 1.1062093558835275,
+            98: 1.1062093558835275,
+            99: 1.1062093558835275,
+            100: 1.1062093558835275
+        }
+        """
+        age (integer)   : from [18, 100] (inclusive)
+        step            : to be perceived as a month, to increase income with inflation.
+        """
+        parameter = 6.5
+        inflation = 1 + 0.02 * (step / 12)
+        cd = scipy.random.chisquare(parameter, size=1)
+
+        """ Scale for Std """
+        cd = cd / (2 * parameter) ** 1 / 2
+
+        """ Adjust Mean so ~= 3484 (mean monthly Dutch Household Income) """
+        mean_chi = parameter / (2 * parameter) ** 1 / 2
+        cd = cd * (3484 / mean_chi) * age_coef_dict[age] * np.random.normal(loc=inflation, scale=.002, size=1)
+        return cd[0]
 
     def step(self):
         """
@@ -53,7 +150,8 @@ class Household(Agent):
         self.savings += self.income
         # calculate equity
         if self.house:
-            self.savings += self.model.payoff_perc_freehold * self.house.price 
+            # print(self.house.price)
+            self.savings += self.model.payoff_perc_freehold * self.house.price
             self.equity = self.house.price + self.savings
         else:
             # self.savings -= self.model.rental_cost
@@ -69,11 +167,11 @@ class Household(Agent):
                 for house in available_houses:
                     if house.price > self.house.price and house.price < self.equity:
                         # list own house
-                        self.house.set_avalaibility(True)
+                        self.house.set_availability(True)
             # small percentage to try and sell your house even if you have a house
             # this could be the increased and decreased if someone is risk averse
             if random.random() < 0.1:
-                self.house.set_avalaibility(True)
+                self.house.set_availability(True)
         # always buy a house if you are renting, this could be enhanced if there was a bidding stage
         else:
             self.buy_house(available_houses)
@@ -81,10 +179,9 @@ class Household(Agent):
         # for now implement simple death rule, agent exits model at age of 100
         if self.age == 100:
             if self.house:
-                self.house.set_avalaibility(True)
+                self.house.set_availability(True)
             self.model.remove_agent(self)
 
-            
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
 
@@ -92,40 +189,55 @@ class Household(Agent):
             available_houses (list): A list of all available houses
         """
         # try to buy a house
-        available_houses.sort(key=lambda x:x.price, reverse=True)
+        available_houses.sort(key=lambda x: x.price, reverse=True)
         for house in available_houses:
             if house.owner == self:
                 continue
             # buy the best house avalaible
             if house.price < self.savings:
-            # wire the money
+                # wire the money
                 previous_owner = house.owner
                 if previous_owner:
                     previous_owner.house = None
-                    MultiGrid.move_agent(self=self.model.grid, agent=previous_owner, pos=(0,0))
+                    MultiGrid.move_agent(self=self.model.grid, agent=previous_owner, pos=(0, 0))
                     previous_owner.savings += house.price
                 self.savings -= house.price
 
                 # change ownership
                 self.house = house
                 self.house.owner = self
-                house.set_avalaibility(False)
+                house.set_availability(False)
                 MultiGrid.move_agent(self=self.model.grid, agent=self, pos=house.pos)
                 break
 
+
+def set_initial_house_price():
+    mean_house_price = 400_000
+    parameter = 6.5
+    cd = scipy.random.chisquare(parameter, size=1)
+
+    """ Scale for Std """
+    cd = cd / (2 * parameter) ** 1 / 2
+
+    """ Adjust Mean so ~= 3484 (mean monthly Dutch Household Income) """
+    mean_chi = parameter / (2 * parameter) ** 1 / 2
+    cd = cd * (1 / mean_chi) * mean_house_price
+    return cd[0]
+
+
 class House(Agent):
     def __init__(self, unique_id, model, pos):
-        super().__init__(unique_id, model)  
-        self.pos = pos        
+        super().__init__(unique_id, model)
+        self.pos = pos
         # set initial house price
-        self.price = random.randint(self.model.price_lower,self.model.price_upper)
-        self.owner = None 
+        self.price = set_initial_house_price()
+        self.owner = None
         self.available = True
 
-
-    def set_avalaibility(self, set_to):
+    def set_availability(self, set_to):
         self.available = set_to
 
     def step(self):
         # this method  gets called once every year
         self.price *= self.model.house_price_change
+
