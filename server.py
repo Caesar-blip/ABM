@@ -14,52 +14,61 @@ orig_stdout = sys.stdout
 sys.stdout = open(os.devnull, 'w')
 sys.stdout = orig_stdout
 
+
 def choose_color(agent):
     if type(agent) is House:
-        if agent.available == True:
-            color='green'
-        else:
-            color='red'
-    else:
-        color='blue'
+        if agent.available: color = 'green'
+        else:   color = 'red'
+    else:   color = 'black'
     return color
 
+
 def agent_portrayal(agent):
-    portrayal = {"Shape": "circle",
-                 "Color": choose_color(agent),
-                 "Filled": "true",
-                 "Layer": 0,
-                 "r": 0.5 if type(agent) is House else 0.2}
+    if type(agent) is House:
+        portrayal = {"Shape": "rect",
+                     "Color": choose_color(agent),
+                     "Filled": "true",
+                     "Layer": 0,
+                     'w': 0.99,
+                     'h': 0.99}
+    else:
+        portrayal = {"Shape": "circle",
+                     "Color": choose_color(agent),
+                     "Filled": "true",
+                     "Layer": 1,
+                     'r': .4}
     return portrayal
 
 
 grid = CanvasGrid(agent_portrayal, 20, 20, 500, 500)
 
-# Create a dynamic linegraph
-chart = ChartModule([
-                      {"Label": "Gini","Color": "red"}
-		      ],
+""" Create a dynamic linegraph """
+gini_char = ChartModule(
+                    [{"Label": "Gini", "Color": "red"}],
                     data_collector_name='datacollector',
-                    canvas_width = 500, canvas_height = 500 
-		    )
+                    canvas_width=500,
+                    canvas_height=500)
 
 
-chart2 = ChartModule([
-                      {"Label": "Average Savings", "Color": "pink"},
-                      {"Label": "Age 20 Savings", "Color": "blue"},
-                      {"Label": "Age 40 Savings", "Color": "orange"},
-                      {"Label": "Age 60 Savings", "Color": "red"},
-                      {"Label": "Age 100 Savings", "Color": "green"},
-		      ],
-                    canvas_width = 500, canvas_height = 500, 
+average_savings_chart = ChartModule([
+                    {"Label": "Average Savings", "Color": 'red'},
+                    {"Label": "Age -25 Savings", "Color": "005F73"},
+                    {"Label": "Age 25-34 Savings", "Color": "0A9396"},
+                    {"Label": "Age 45-54 Savings", "Color": "94D2BD"},
+                    {"Label": "Age 55-64 Savings", "Color": "E9D8A6"},
+                    {"Label": "Age 65-74 Savings", "Color": "EE9B00"},
+                    {"Label": "Age 75+ Savings", "Color": "AE2012"}],
+                    canvas_width=500, canvas_height=500,
                     data_collector_name='datacollector')
 
 # Create the server, and pass the grid and the graph
-server = ModularServer(HousingMarket,
-                       [grid, chart, chart2],
-                       "Housing Market Model",
-                       {})
+server = ModularServer(
+                    HousingMarket,
+                    [grid, gini_char, average_savings_chart],
+                    "Housing Market Model",
+                    {})
+HousingMarket.initial_houses = 100
+HousingMarket.initial_households = 90
 
 server.port = 8522
-
 server.launch()

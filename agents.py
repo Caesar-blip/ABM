@@ -29,7 +29,6 @@ class Household(Agent):
             if rand < self.model.age_distr[i]:
                 return self.model.ages[i]
 
-
     def set_income(self):
         # for now even agents past initialisation get an income from generic income distribution (so not based on young age)
         # Note: CBS has income distribution of people <25, just need to get csv and transform data again
