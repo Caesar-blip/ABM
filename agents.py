@@ -17,9 +17,24 @@ class Household(Agent):
         self.income = self.set_income()
         self.house = None
 
+        # No one starts with a mortgage
+        self.mortgage = 0
+
         self.monthly_ageing = 0
         self.strategy = np.random.choice(["naive", "sophisticated"])
 
+    
+    def get_mortgage_quote(self):
+        """
+        Calculates mortage quote based on monthly household disposable income
+        Example:
+        - Disposable income (mean) of 3500 per month ~ 42k per year ~ 60k gross per year
+        - Based on several mortgage calculators, mortgage is ~ 5-6x gross income. 
+        - i.e. 60k should result in 300k. Thus, disposable income is ~ 8x to mortgage
+        - (this is a naive and deterministic mortgage quote)
+        """
+        deterministic_quote = self.income * 12 * 8 
+        return deterministic_quote
 
     def set_age(self):
         # if model is past initialisation, new agents in the model are "born" at youngest available age
@@ -92,47 +107,68 @@ class Household(Agent):
             self.age += 1
             self.monthly_ageing = 0
 
-        # receive income 
-        self.savings += self.income
         # calculate equity
         if self.house:
             # print(self.house.price)
             self.savings += self.model.payoff_perc_freehold * self.house.price
             self.equity = self.house.price + self.savings
         else:
-            # self.savings -= self.model.rental_cost
             self.equity = self.savings
 
         # all available houses
         available_houses = self.model.schedule_House.get_available()
 
+
         # decide whether to sell your house
         # agents only sell if they are between 20 and 65
         if (self.age < 20 or self.age > 65): 
             pass
+
         # depending on their strategy an agent will have a different procedure for deciding whether to sell:
         elif (self.house and self.strategy == "naive"):
             # not everybody is actively checking the market at every step
             if random.random() < (1 - 0.01 * self.age) or self.empty_neighborhood == True:
+
+                # get new mortgage quote based on current income
+                mortgage_quote = self.get_mortgage_quote()
+
+                if self.house:
+                    # calculate expected money gained from selling current house
+                    house_mortgage_differential = self.house.priceChangeForecast - self.mortgage
+                else:
+                    house_mortgage_differential = 0
+
+                # calculate total available money for buying a house
+                available_money = mortgage_quote + house_mortgage_differential + self.savings
+
                 for house in available_houses:
-                    if house.priceChangeForecast > self.house.priceChangeForecast and house.price < self.equity:
+                    if house.priceChangeForecast > self.house.priceChangeForecast and house.price < available_money:
                         # list own house
                         self.house.set_availability(True)
-                        self.buy_house(available_houses)
+
         elif (self.house and self.strategy == "sophisticated"):
             # not everybody is actively checking the market at every step
             if random.random() < (1 - 0.01 * self.age) or self.empty_neighborhood == True:
+
+                # get new mortgage quote based on current income
+                mortgage_quote = self.get_mortgage_quote()
+
+                if self.house:
+                    # calculate expected money gained from selling current house
+                    house_mortgage_differential = self.house.priceChangeForecast - self.mortgage
+                else:
+                    house_mortgage_differential = 0
+                    
+                # calculate total available money for buying a house
+                available_money = mortgage_quote + house_mortgage_differential + self.savings
+
                 for house in available_houses:
-                    if house.priceChangeForecast_av > self.house.priceChangeForecast_av and house.price < self.equity:
+                    if house.priceChangeForecast_av > self.house.priceChangeForecast_av and house.price < available_money:
                         # list own house
                         self.house.set_availability(True)
-                        self.buy_house(available_houses)
-            # small percentage to try and sell your house even if you have a house
-            # this could be the increased and decreased if someone is risk averse
-            #if random.random() < 0.1:
-            #    self.house.set_availability(True)
+
         # always buy a house if you are renting, this could be enhanced if there was a bidding stage
-        else:
+        elif self.house is None:
             self.buy_house(available_houses)
 
         # for now implement simple death rule, agent exits model at age of 100
@@ -147,6 +183,8 @@ class Household(Agent):
 
         Args:
             available_houses (list): A list of all available houses
+
+        Note: you enter this function with assumption that you do NOT have a house anymore! (otherwise have to change this function)
         """
         # try to buy a house
         if self.strategy == "naive":
@@ -158,14 +196,32 @@ class Household(Agent):
             if house.owner == self:
                 continue
             # buy the best house avalaible
-            if house.price < self.savings:
+
+            mortgage_quote = self.get_mortgage_quote()
+            available_money = self.savings + mortgage_quote
+            if house.price < available_money:
                 # wire the money
                 previous_owner = house.owner
                 if previous_owner:
                     previous_owner.house = None
                     MultiGrid.move_agent(self=self.model.grid, agent=previous_owner, pos=(0, 0))
-                    previous_owner.savings += house.price
-                self.savings -= house.price
+
+                    # pay off mortgage of previous owner and push cash remainder into savings
+                    earnings_from_sale = house.price - previous_owner.mortgage 
+                    previous_owner.savings += earnings_from_sale
+                    previous_owner.mortgage = 0
+
+                if house.price > mortgage_quote:
+                    # take the mortgage
+                    self.mortgage = mortgage_quote
+
+                    # pay remainder with savings
+                    pay_with_savings = house.price - mortgage_quote
+                    self.savings -= pay_with_savings
+                else:
+                    # if able to get a mortgage larger than house price
+                    # only get mortgage up to house price, and afford entire house with mortgage
+                    self.mortgage = house.price
 
                 # change ownership
                 self.house = house
@@ -173,18 +229,6 @@ class Household(Agent):
                 house.set_availability(False)
                 MultiGrid.move_agent(self=self.model.grid, agent=self, pos=house.pos)
                 break
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class House(Agent):
