@@ -19,11 +19,12 @@ class HouseActivation(RandomActivation):
 
 def compute_savings(model):
     total = 0
+    count = 0
     for agent in model.schedule_Household.agents:
         total += agent.savings
+        count += 1 
     
-    return total
-
+    return total/count
 
 def compute_mean_income(model):
     total = 0
@@ -57,6 +58,57 @@ def collect_ages(Agent):
         return Agent.age
     else:
         return None
+
+'''
+Model level data collection
+'''
+
+def age_20_savings(model):
+    age_savings = 0
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(20,40) :
+            age_savings += agent.savings
+            age_count += 1 
+
+    return age_savings/age_count
+
+def age_40_savings(model):
+    age_savings = 0
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(41,60) :
+            age_savings += agent.savings
+            age_count += 1 
+
+    return age_savings/age_count
+
+def age_60_savings(model):
+    age_savings = 0
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(61,80) :
+            age_savings += agent.savings
+            age_count += 1 
+
+    return age_savings/age_count
+
+def age_100_savings(model):
+    age_savings = 0
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(81, 100) :
+            age_savings += agent.savings
+            age_count += 1 
+
+    if age_count == 0:
+        return age_savings
+    else:
+        return age_savings/age_count
 
 
 class HousingMarket(Model):
@@ -98,7 +150,13 @@ class HousingMarket(Model):
 
         self.datacollector = DataCollector(
             model_reporters={
-                "Gini": gini_coefficient
+                "Gini": gini_coefficient,
+		"Average Savings": compute_savings, 
+                "Age 20 Savings": age_20_savings,
+                "Age 40 Savings": age_40_savings,
+		"Age 60 Savings": age_60_savings,
+		"Age 100 Savings": age_100_savings,
+
             },
             agent_reporters={
                 "Income": collect_income,
