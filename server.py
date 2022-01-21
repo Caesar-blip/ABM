@@ -9,23 +9,6 @@ import os
 import sys
 import numpy as np
 
-class HistogramModule(VisualizationElement):
-    package_includes = ["Chart.min.js"]
-    local_includes = ["HistogramModules.js"]
-
-    def __init__(self, bins, canvas_height, canvas_width):
-        self.canvas_height = canvas_height
-        self.canvas_width = canvas_width
-        self.bins = bins
-        new_element = "new HistogramModule({}, {}, {})"
-        new_element = new_element.format(bins, canvas_width, canvas_height)
-        self.js_code = "elements.push(" + new_element + ");"
-        
-    def render(self, model):
-        wealth_vals = [agent.savings for agent in model.schedule_Household.agents]
-        hist = np.histogram(wealth_vals, bins = self.bins)[0]
-        return [int(x) for x in hist]
-
 # Change stdout so we can ignore most prints etc.
 orig_stdout = sys.stdout
 sys.stdout = open(os.devnull, 'w')
@@ -68,11 +51,9 @@ chart2 = ChartModule([
 		      ],
                     data_collector_name='datacollector')
 
-histogram = HistogramModule(list(range(1000)), 500, 500)
-
 # Create the server, and pass the grid and the graph
 server = ModularServer(HousingMarket,
-                       [grid, chart, chart2, histogram],
+                       [grid, chart, chart2],
                        "Housing Market Model",
                        {})
 
