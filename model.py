@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import csv
-
+#
 from mesa import Model
 from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
@@ -226,14 +226,6 @@ class HousingMarket(Model):
                 "Age 75+ Savings": age_75_plus_savings,
                 "Average Household Income": average_household_income,
                 'Mean Household Age': mean_household_age,
-                #"Age -25 amount": age_25_amount,
-                #"Age 25-34 amount": age_25_34_amount,
-                #"Age 35-44 amount": age_35_44_amount,
-                #"Age 45-54 amount": age_45_54_amount,
-                #"Age 55-64 amount": age_55_64_amount,
-                #"Age 65-74 amount": age_65_74_amount,
-                #"Age 75+ amount": age_75_plus_amount,
-                "Agent count": total_agents,
                 'Mean House Price': mean_house_price,
                 'Mean Forecasted House Price Change': mean_house_price_change
             },
@@ -354,7 +346,7 @@ class HousingMarket(Model):
         #if self.period % 12 == 0:
         #    self.house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
         #    self.schedule_House.step()
-        self.house_price_change = random.randint(-3 + self.inflation,3 + self.inflation) if random.random() < 0.7 else random.randint(-3 + self.inflation,3 + self.inflation)*(-1) 
+        #self.house_price_change = random.randint(-3 + self.inflation,3 + self.inflation) if random.random() < 0.7 else random.randint(-3 + self.inflation,3 + self.inflation)*(-1) 
         self.schedule_House.step()
 
         self.schedule_Household.step()

@@ -282,8 +282,8 @@ class House(Agent):
         self.house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
         self.past_house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
         self.price = set_initial_house_price()
-        self.priceChange = self.price * random.normalvariate(mu=self.model.house_price_change, sigma = 2*self.model.house_price_change)/100 
-        self.priceChange_past = self.price * random.normalvariate(mu=self.model.house_price_change, sigma = 2*self.model.house_price_change)/100 
+        self.priceChange = self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100 
+        self.priceChange_past = self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100 
         self.priceChange_av = (self.priceChange + self.priceChange_past)/2
         self.owner = None
         self.available = True
@@ -294,10 +294,10 @@ class House(Agent):
 
     def step(self):
         # this method  gets called once every year
-        self.price += (self.price * random.normalvariate(mu=self.model.house_price_change, sigma = 2*self.model.house_price_change)/100)
+        self.price += (self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100)
 
         #self.priceChange = self.model.house_price_change*self.price
-        self.priceChange = self.price * random.normalvariate(mu=self.model.house_price_change, sigma = 2*self.model.house_price_change)/100 
+        self.priceChange = self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100 
         self.price += self.priceChange
         #self.house_price_change*self.price
         #self.price *= self.model.house_price_change
