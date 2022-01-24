@@ -22,7 +22,7 @@ class HouseActivation(RandomActivation):
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=100, initial_households=150, rental_cost=1000,
                  savings_lower=0, savings_upper=500000, price_lower=100000, price_upper=1000000,
-                 payoff_perc_freehold=0.0025):
+                 payoff_perc_freehold=0.0025, inflation=0):
         super().__init__()
         self.height = width
         self.width = height
@@ -42,6 +42,7 @@ class HousingMarket(Model):
         self.price_upper = price_upper
         self.incomes, self.income_distr = self.draw_income_distribution()
         self.ages, self.age_distr = self.draw_age_distribution()
+        self.inflation = inflation
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
 
@@ -49,8 +50,6 @@ class HousingMarket(Model):
         self.schedule_Household = RandomActivation(self)
         self.schedule = HouseActivation(self)
         self.running = True
-        # self.schedule_hhld = StagedActivation(self)
-        # self.schedule_hhld.stage_list = ["stage1", "stage2", "stage3"]
 
         self.n_households = self.initial_households
 
@@ -184,7 +183,7 @@ class HousingMarket(Model):
         '''
         # change the housing prices every year
         if self.period % 12 == 0:
-            self.house_price_change = random.random()
+            self.house_price_change = random.randint(-3 + self.inflation,3 + self.inflation)
             self.schedule_House.step()
 
         self.schedule_Household.step()

@@ -35,13 +35,13 @@ class Household(Agent):
 
     def set_income(self):
         age = self.age
-        step = self.model.period  # TODO : get step from model
+        step = self.model.period
         """
         age (integer)   : from [18, 100] (inclusive)
         step            : to be perceived as a month, to increase income with inflation.
         """
         parameter = 6.5
-        inflation = 1 + 0.02 * (step / 12)
+        inflation = 1 + self.model.inflation * (step / 12)
         cd = scipy.random.chisquare(parameter, size=1)
 
         """ Scale for Std """
@@ -156,7 +156,7 @@ class House(Agent):
 
     def step(self):
         # this method  gets called once every year
-        self.price *= self.model.house_price_change
+        self.price *= random.normalvariate(mu=self.model.house_price_change, sigma = 2*self.model.house_price_change)
 
 
 
