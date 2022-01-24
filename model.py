@@ -181,6 +181,8 @@ class HousingMarket(Model):
         '''
         Method that calls the step method
         '''
+
+        self.schedule.steps += 1
         # change the housing prices every year
         if self.period % 12 == 0:
             self.house_price_change = random.randint(-3 + self.inflation,3 + self.inflation)
