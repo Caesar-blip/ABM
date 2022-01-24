@@ -143,23 +143,10 @@ class HousingMarket(Model):
             MultiGrid.move_agent(self=self.grid, agent=self.schedule_Household.agents[i],
                                  pos=self.schedule_House.agents[i].pos)
 
-    def init_population(self, agent_type, n):
-        '''
-        Method that provides an easy way of making a bunch of agents at once.
-        '''
-        for i in range(n):
-            x = random.randrange(self.width)
-            y = random.randrange(self.height)
-
-            self.new_agent(agent_type, (x, y))
-
     def new_agent(self, agent_type, pos):
         '''
         Method that creates a new agent, and adds it to the correct scheduler.
         '''
-        if isinstance(agent_type, Household):
-            self.n_households += 1
-
         agent = agent_type(self.next_id(), self, pos)
 
         self.grid.place_agent(agent, pos)
@@ -170,8 +157,6 @@ class HousingMarket(Model):
         '''
         Method that removes an agent from the grid and the correct scheduler.
         '''
-        if isinstance(agent, Household):
-            self.n_households -= 1
 
         self.grid.remove_agent(agent)
         getattr(self, f'schedule_{type(agent).__name__}').remove(agent)
@@ -192,9 +177,10 @@ class HousingMarket(Model):
         self.datacollector.collect(self)
 
         # check if population is still of same size 
+        self.n_households = len(self.schedule_Household.agents)
         if self.n_households != self.initial_households:
             # if someone has died, add a new household agent to the model 
-            n_deaths = self.n_households - self.initial_households
+            n_deaths = self.initial_households - self.n_households
             self.initialize_population(Household, n_deaths)
 
         self.period += 1
