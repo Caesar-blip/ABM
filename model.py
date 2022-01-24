@@ -75,7 +75,7 @@ class HousingMarket(Model):
                 "Price": 'price',
                 "Age": collect_ages
             })
-        print(self.initial_houses)
+    
         self.initialize_population(House, self.initial_houses)
         self.initialize_population(Household, self.initial_households)
         self.assign_houses()
