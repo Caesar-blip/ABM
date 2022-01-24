@@ -141,6 +141,8 @@ class Household(Agent):
         return cd[0]
     
     def empty_neighborhood(self):
+        # an agent looks around and checks if the majority of houses in their vincinity are empty
+        # if they are, the agent decides to move away too
         houses = 0
         for neighbor in self.model.grid.neighbor_iter(self.pos):
             if neighbor.type != self.type:
@@ -181,8 +183,10 @@ class Household(Agent):
         available_houses = self.model.schedule_House.get_available()
 
         # decide whether to sell your house
-        if (self.age < 20 or self.age > 65):
+        # agents only sell if they are between 20 and 65
+        if (self.age < 20 or self.age > 65): 
             pass
+        # depending on their strategy an agent will have a different procedure for deciding whether to sell:
         elif (self.house and self.strategy == "naive"):
             # not everybody is actively checking the market at every step
             if random.random() < 0.5 or self.empty_neighborhood == True:

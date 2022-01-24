@@ -342,7 +342,6 @@ class HousingMarket(Model):
         self.house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
         self.schedule_House.step()
 
-
         self.schedule_Household.step()
         self.datacollector.collect(self)
 
