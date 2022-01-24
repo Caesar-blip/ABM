@@ -183,7 +183,7 @@ class Household(Agent):
         # decide whether to sell your house
         if (self.age < 20 or self.age > 65):
             pass
-        elif (self.house & self.strategy == "naive"):
+        elif (self.house and self.strategy == "naive"):
             # not everybody is actively checking the market at every step
             if random.random() < 0.5 or self.empty_neighborhood == True:
                 for house in available_houses:
@@ -191,7 +191,7 @@ class Household(Agent):
                         # list own house
                         self.house.set_availability(True)
                         self.buy_house(available_houses)
-        elif (self.house & self.strategy == "sophisticated"):
+        elif (self.house and self.strategy == "sophisticated"):
             # not everybody is actively checking the market at every step
             if random.random() < 0.5 or self.empty_neighborhood == True:
                 for house in available_houses:
@@ -273,6 +273,7 @@ class House(Agent):
         self.priceChange_av = (self.priceChange + self.priceChange_past)/2
         self.owner = None
         self.available = True
+        self.period = 0
 
     def set_availability(self, set_to):
         self.available = set_to
@@ -283,6 +284,7 @@ class House(Agent):
         self.priceChange = self.house_price_change*self.price
         self.price *= self.model.house_price_change
         self.priceChangeForecast = self.price*self.model.house_price_change 
-        self.priceChange_past = (self.priceChange_past + self.priceChange)/(self.period+1)
+        self.period += 1
+        self.priceChange_past = (self.priceChange_past + self.priceChange)/(self.period + 1)
         self.priceChangeForecast_av = self.price*self.model.house_price_change 
 

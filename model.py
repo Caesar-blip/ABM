@@ -165,7 +165,6 @@ def mean_house_price(model):
     for agent in model.schedule_House.agents:
         price += agent.price
         counter += 1
-
     return price / counter
 
 def mean_house_price_change(model):
@@ -173,7 +172,6 @@ def mean_house_price_change(model):
     for agent in model.schedule_House.agents:
         priceChangeForecast += agent.priceChangeForecast
         counter += 1
-
     return priceChangeForecast / counter
 
 class HousingMarket(Model):
