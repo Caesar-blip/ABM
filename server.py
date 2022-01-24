@@ -74,7 +74,7 @@ mean_household_age_chart = ChartModule([
                     {"Label": "Age -25 amount", "Color": "green"},
                     {"Label": "Age 25-34 amount", "Color": "blue"},
                     {"Label": "Age 35-44 amount", "Color": "pink"},
-                    {"Label": "Age 45-54 amounts", "Color": "purple"},
+                    {"Label": "Age 45-54 amount", "Color": "purple"},
                     {"Label": "Age 55-64 amount", "Color": "black"},
                     {"Label": "Age 65-74 amount", "Color": "yellow"},
                     {"Label": "Age 75+ amount", "Color": "orange"},
