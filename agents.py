@@ -25,13 +25,7 @@ class Household(Agent):
         if self.model.period > 0:
             return 20
 
-        '''
         # if model is initialised, distribute age following Dutch age distribution among agents
-        rand = random.random()
-        for i in range(len(self.model.ages)):
-            if rand < self.model.age_distr[i]:
-                return self.model.ages[i]
-        '''
 
         for i in range(len(self.model.ages)):
             ret = False
@@ -40,11 +34,8 @@ class Household(Agent):
                 y = random.uniform(0, 1)
 
                 if y <= -x**6 + 1:
-                    return x * 100
+                    return int(x * 100)
 	      
-
-
-
     def set_income(self):
         age = self.age
         step = self.model.period
@@ -52,25 +43,21 @@ class Household(Agent):
         age (integer)   : from [18, 100] (inclusive)
         step            : to be perceived as a month, to increase income with inflation.
         """
-        """
         parameter = 6.5
         inflation = 1 + self.model.inflation * (step / 12)
         cd = scipy.random.chisquare(parameter, size=1)
 
         """
-        """ Scale for Std """
+        Scale for Std 
         """
         cd = cd / (2 * parameter) ** 1 / 2
 
         """
-        """ Adjust Mean so ~= 3484 (mean monthly Dutch Household Income) """
+        Adjust Mean so ~= 3484 (mean monthly Dutch Household Income) 
         """
         mean_chi = parameter / (2 * parameter) ** 1 / 2
         cd = cd * (3484 / mean_chi) * age_coef_dict[age] * np.random.normal(loc=inflation, scale=.002, size=1)
         return cd[0]
-
-        """
-        return random.uniform(0, 1000)
 
 
     def step(self):
