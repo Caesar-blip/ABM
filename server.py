@@ -78,7 +78,18 @@ mean_household_age_chart = ChartModule([
                     {"Label": "Age 55-64 amount", "Color": "black"},
                     {"Label": "Age 65-74 amount", "Color": "yellow"},
                     {"Label": "Age 75+ amount", "Color": "orange"},
-                    {"Label": "Agent count", "Color": "red"}],
+                    {"Label": "Agent count", "Color": "red"},
+                    {"Label": "Mean Household Age", "Color": 'green'}],
+                    canvas_width=500, canvas_height=200,
+                    data_collector_name='datacollector')
+
+mean_house_price_chart = ChartModule([
+                    {"Label": "Mean House Price", "Color": 'green'}],
+                    canvas_width=500, canvas_height=200,
+                    data_collector_name='datacollector')
+
+mean_forecasted_price_chart = ChartModule([
+                    {"Label": "Mean Forecasted House Price Change", "Color": 'green'}],
                     canvas_width=500, canvas_height=200,
                     data_collector_name='datacollector')
 
