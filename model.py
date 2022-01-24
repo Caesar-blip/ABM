@@ -8,31 +8,28 @@ from mesa.datacollection import DataCollector
 from mesa.time import RandomActivation, StagedActivation
 from agents import *
 
+
 class HouseActivation(RandomActivation):
     def __init__(self, model):
         super().__init__(model)
         self.model = model
 
     def get_available(self):
-        return [house for house in self.model.schedule_House.agents if house.available] 
+        return [house for house in self.model.schedule_House.agents if house.available]
 
 
-def compute_savings(model):
-    total = 0
-    for agent in model.schedule_Household.agents:
-        total += agent.savings
-    
-    return total
+'''
+Model level data collection
+'''
 
 
-def compute_mean_income(model):
-    total = 0
-    agent_count = 0
+def average_household_income(model):
+    total = 0   ;   agent_count = 0
     for agent in model.schedule_Household.agents:
         total += agent.income
         agent_count += 1
     return total / agent_count
-    
+
 
 def gini_coefficient(model):
     """Compute Gini coefficient of array of values"""
@@ -43,7 +40,7 @@ def gini_coefficient(model):
     diffsum = 0
     for i, xi in enumerate(x[:-1], 1):
         diffsum += np.sum(np.abs(xi - x[i:]))
-    return diffsum / (len(x)**2 * np.mean(x))
+    return diffsum / (len(x) ** 2 * np.mean(x))
 
 
 def collect_income(Agent):
@@ -52,23 +49,150 @@ def collect_income(Agent):
     else:
         return None
 
+
 def collect_ages(Agent):
     if type(Agent) == Household:
         return Agent.age
     else:
-        return 0
+        return None
 
+
+def mean_household_age(model):
+    ages = 0 ;   counter = 0
+    for agent in model.schedule_Household.agents:
+        ages += agent.age
+        counter += 1
+
+    return ages / counter
+
+
+def average_savings(model):
+    age_savings = 0 ;   age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        age_savings += agent.savings
+        age_count += 1
+
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
+
+
+def age_25_minus_savings(model):
+    age_savings = 0 ;   age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(18, 25):
+            age_savings += agent.savings
+            age_count += 1
+
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
+
+
+def age_25_34_savings(model):
+    age_savings = 0 ;   age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(25, 35):
+            age_savings += agent.savings
+            age_count += 1
+
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
+
+
+def age_35_44_savings(model):
+    age_savings = 0 ;   age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(35, 45):
+            age_savings += agent.savings
+            age_count += 1
+
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
+
+
+def age_45_54_savings(model):
+    age_savings = 0 ;age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(45, 55):
+            age_savings += agent.savings
+            age_count += 1
+
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
+
+
+def age_55_64_savings(model):
+    age_savings = 0 ;   age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(55, 65):
+            age_savings += agent.savings
+            age_count += 1
+
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
+
+
+def age_65_74_savings(model):
+    age_savings = 0 ;   age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(65, 75):
+            age_savings += agent.savings
+            age_count += 1
+
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
+
+
+def age_75_plus_savings(model):
+    age_savings = 0 ;age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(75, 101):
+            age_savings += agent.savings
+            age_count += 1
+
+    if age_count == 0:  return age_savings
+    else:   return age_savings / age_count
+
+def mean_house_price(model):
+    price = 0 ;   counter = 0
+    for agent in model.schedule_House.agents:
+        price += agent.price
+        counter += 1
+
+    return price / counter
+
+def mean_house_price_change(model):
+    priceChangeForecast = 0 ;   counter = 0
+    for agent in model.schedule_House.agents:
+        priceChangeForecast += agent.priceChangeForecast
+        counter += 1
+
+    return priceChangeForecast / counter
 
 class HousingMarket(Model):
-    def __init__(self, height=20, width=20, initial_houses=20, initial_households=30, rental_cost=1000, 
-    savings_lower = 0, savings_upper=500000, price_lower = 100000, price_upper=1000000):
+    def __init__(self, height=20, width=20, initial_houses=100, initial_households=150, rental_cost=1000,
+                 savings_lower=0, savings_upper=500000, price_lower=100000, price_upper=1000000,
+                 payoff_perc_freehold=0.0025):
         super().__init__()
         self.height = width
         self.width = height
         self.initial_houses = initial_houses
         self.initial_households = initial_households
         self.rentals = self.initial_households - initial_houses
+
+        # rental_cost is obsolete now, we use payoff_perc_freehold
         self.rental_cost = rental_cost
+
+        # determines the percentage of house price that you pay off
+        self.payoff_perc_freehold = payoff_perc_freehold
+
         self.savings_lower = savings_lower
         self.savings_upper = savings_upper
         self.price_lower = price_lower
@@ -81,7 +205,7 @@ class HousingMarket(Model):
         self.schedule_House = HouseActivation(self)
         self.schedule_Household = RandomActivation(self)
         self.schedule = HouseActivation(self)
-
+        self.running = True
         # self.schedule_hhld = StagedActivation(self)
         # self.schedule_hhld.stage_list = ["stage1", "stage2", "stage3"]
 
@@ -92,40 +216,49 @@ class HousingMarket(Model):
 
         self.datacollector = DataCollector(
             model_reporters={
-                "Gini": gini_coefficient
+                "Gini": gini_coefficient,
+                "Average Savings": average_savings,
+                "Age -25 Savings": age_25_minus_savings,
+                "Age 25-34 Savings": age_25_34_savings,
+                "Age 35-44 Savings": age_35_44_savings,
+                "Age 45-54 Savings": age_45_54_savings,
+                "Age 55-64 Savings": age_55_64_savings,
+                "Age 65-74 Savings": age_65_74_savings,
+                "Age 75+ Savings": age_75_plus_savings,
+                "Average Household Income": average_household_income,
+                'Mean Household Age': mean_household_age,
+                'Mean House Price': mean_house_price,
+                'Mean Forecasted House Price Change': mean_house_price_change
             },
             agent_reporters={
                 "Income": collect_income,
                 "Price": 'price',
                 "Age": collect_ages
             })
-
-
+        print(self.initial_houses)
         self.initialize_population(House, self.initial_houses)
         self.initialize_population(Household, self.initial_households)
         self.assign_houses()
 
-
     def draw_income_distribution(self):
-        incomes  = []
+        incomes = []
         counts = []
 
         with open('input_data/incomes.csv') as file:
             csv_reader = csv.reader(file, delimiter=',')
             for row in csv_reader:
-                incomes.append([int(row[0])*1000/12,int(row[1])*1000/12])
+                incomes.append([int(row[0]) * 1000 / 12, int(row[1]) * 1000 / 12])
                 counts.append(int(row[2]))
 
         cum_counts = []
         for i in range(len(counts)):
-            cum_counts.append(sum(counts[:i+1]))
+            cum_counts.append(sum(counts[:i + 1]))
 
         hhld_count = sum(counts)
 
         cum_ratios = [x / hhld_count for x in cum_counts]
 
         return incomes, cum_ratios
-        
 
     def draw_age_distribution(self):
         ages = []
@@ -140,10 +273,9 @@ class HousingMarket(Model):
         # we consider housing market participants in age range 20-100
         ages = ages[20:]
         age_counts = age_counts[20:]
-
         cum_counts = []
         for i in range(len(age_counts)):
-            cum_counts.append(sum(age_counts[:i+1]))
+            cum_counts.append(sum(age_counts[:i + 1]))
 
         pop_count = sum(age_counts)
 
@@ -154,17 +286,18 @@ class HousingMarket(Model):
     def initialize_population(self, agent_type, n):
         for i in range(n):
             x = random.randrange(self.width)
-            y = random.randrange(self.height)   
-            self.new_agent(agent_type, (x, y))  
-
+            y = random.randrange(self.height)
+            self.new_agent(agent_type, (x, y))
 
     def assign_houses(self):
-        for i in range(len(self.schedule_House.agents)):
-            self.schedule_House.agents[i].set_avalaibility(False)
+        _len = len(self.schedule_House.agents)
+        if len(self.schedule_Household.agents) < len(self.schedule_House.agents) : _len = len(self.schedule_Household.agents)
+        for i in range(_len):
+            self.schedule_House.agents[i].set_availability(False)
             self.schedule_Household.agents[i].house = self.schedule_House.agents[i]
             self.schedule_House.agents[i].owner = self.schedule_Household.agents[i]
-            MultiGrid.move_agent(self=self.grid, agent=self.schedule_Household.agents[i], pos=self.schedule_House.agents[i].pos)
-            
+            MultiGrid.move_agent(self=self.grid, agent=self.schedule_Household.agents[i],
+                                 pos=self.schedule_House.agents[i].pos)
 
     def init_population(self, agent_type, n):
         '''
@@ -176,12 +309,11 @@ class HousingMarket(Model):
 
             self.new_agent(agent_type, (x, y))
 
-
     def new_agent(self, agent_type, pos):
         '''
         Method that creates a new agent, and adds it to the correct scheduler.
         '''
-        if isinstance(agent_type,Household):
+        if isinstance(agent_type, Household):
             self.n_households += 1
 
         agent = agent_type(self.next_id(), self, pos)
@@ -190,41 +322,41 @@ class HousingMarket(Model):
         getattr(self, f'schedule_{agent_type.__name__}').add(agent)
         getattr(self, "schedule").add(agent)
 
-
     def remove_agent(self, agent):
         '''
         Method that removes an agent from the grid and the correct scheduler.
         '''
-        if isinstance(agent,Household):
+        if isinstance(agent, Household):
             self.n_households -= 1
 
         self.grid.remove_agent(agent)
         getattr(self, f'schedule_{type(agent).__name__}').remove(agent)
         getattr(self, "schedule").remove(agent)
 
-
     def step(self):
         '''
         Method that calls the step method
         '''
         # change the housing prices every year
-        if self.period % 12 == 0:
-            self.house_price_change = random.random()
-            self.schedule_House.step()
-            
-        self.schedule_Household.step()
+        #if self.period % 12 == 0:
+        #    self.house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
+        #    self.schedule_House.step()
+        self.house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
+        self.schedule_House.step()
 
+
+        self.schedule_Household.step()
         self.datacollector.collect(self)
 
         # check if population is still of same size 
         if self.n_households != self.initial_households:
             # if someone has died, add a new household agent to the model 
             n_deaths = self.n_households - self.initial_households
-            self.initialize_population(Household,n_deaths)
-        
+            self.initialize_population(Household, n_deaths)
+
         self.period += 1
 
-    def run_model(self, step_count=200):
+    def run_model(self, step_count=2):
         '''
         Method that runs the model for a specific amount of steps.
         '''
