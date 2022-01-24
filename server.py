@@ -52,12 +52,12 @@ gini_char = ChartModule(
 
 average_savings_chart = ChartModule([
                     {"Label": "Average Savings", "Color": 'red'},
-                    {"Label": "Age -25 Savings", "Color": "005F73"},
-                    {"Label": "Age 25-34 Savings", "Color": "0A9396"},
-                    {"Label": "Age 45-54 Savings", "Color": "94D2BD"},
-                    {"Label": "Age 55-64 Savings", "Color": "E9D8A6"},
-                    {"Label": "Age 65-74 Savings", "Color": "EE9B00"},
-                    {"Label": "Age 75+ Savings", "Color": "AE2012"}],
+                    {"Label": "Age -25 Savings", "Color": "green"},
+                    {"Label": "Age 25-34 Savings", "Color": "blue"},
+                    {"Label": "Age 45-54 Savings", "Color": "purple"},
+                    {"Label": "Age 55-64 Savings", "Color": "black"},
+                    {"Label": "Age 65-74 Savings", "Color": "yellow"},
+                    {"Label": "Age 75+ Savings", "Color": "orange"}],
                     canvas_width=500, canvas_height=200,
                     data_collector_name='datacollector')
 

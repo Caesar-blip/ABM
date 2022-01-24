@@ -17,7 +17,7 @@ class HouseActivation(RandomActivation):
 
     def get_available(self):
         return [house for house in self.model.schedule_House.agents if house.available]
-        
+
 
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=100, initial_households=150, rental_cost=1000,
@@ -127,7 +127,11 @@ class HousingMarket(Model):
     def initialize_population(self, agent_type, n):
         for i in range(n):
             x = random.randrange(self.width)
-            y = random.randrange(self.height)
+            if x == 0:
+                y = random.randrange(1, self.height)
+            else:
+                y = random.randrange(self.height)
+            
             self.new_agent(agent_type, (x, y))
 
     def assign_houses(self):
