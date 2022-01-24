@@ -68,12 +68,20 @@ class HousingMarket(Model):
                 "Age 65-74 Savings": age_65_74_savings,
                 "Age 75+ Savings": age_75_plus_savings,
                 "Average Household Income": average_household_income,
-                'Mean Household Age': mean_household_age
+                'Mean Household Age': mean_household_age,
+                "Age -25 amount": age_25_amount,
+                "Age 25-34 amount": age_25_34_amount,
+                "Age 35-44 amount": age_35_44_amount,
+                "Age 45-54 amount": age_45_54_amount,
+                "Age 55-64 amount": age_55_64_amount,
+                "Age 65-74 amount": age_65_74_amount,
+                "Age 75+ amount": age_75_plus_amount,
+                "Agent count": total_agents,
             },
             agent_reporters={
                 "Income": collect_income,
                 "Price": 'price',
-                "Age": collect_ages
+                "Age": collect_ages,
             })
     
         self.initialize_population(House, self.initial_houses)
