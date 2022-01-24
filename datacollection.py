@@ -141,3 +141,104 @@ def age_75_plus_savings(model):
 
     if age_count == 0:  return age_savings
     else:   return age_savings / age_count
+
+
+
+def age_25_amount(model):
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(18, 25):
+            age_count += 1
+
+    if age_count == 0:  
+        return age_count
+    else:   
+        return age_count
+
+
+def age_25_34_amount(model):
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(25, 35):
+            age_count += 1
+
+    if age_count == 0:  
+        return age_count
+    else:   
+        return age_count
+
+def age_35_44_amount(model):
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(35, 45):
+            age_count += 1
+
+    if age_count == 0:  
+        return age_count
+    else:   
+        return age_count
+
+def age_45_54_amount(model):
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(45, 55):
+            age_count += 1
+
+    if age_count == 0:  
+        return age_count
+    else:   
+        return age_count
+
+def age_55_64_amount(model):
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(55, 65):
+            age_count += 1
+
+    if age_count == 0:  
+        return age_count
+    else:   
+        return age_count
+
+def age_65_74_amount(model):
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(65, 75):
+            age_count += 1
+
+    if age_count == 0:  
+        return age_count
+    else:   
+        return age_count
+
+
+def age_75_plus_amount(model):
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(75, 101):
+            age_count += 1
+
+    if age_count == 0:  
+        return age_count
+    else:   
+        return age_count
+
+def total_agents(model):
+    age_count = 0
+
+    for agent in model.schedule_Household.agents:
+        if agent.age in range(18, 101):
+            age_count += 1
+
+    if age_count == 0:  
+        return age_count
+    else:   
+        return age_count
+
