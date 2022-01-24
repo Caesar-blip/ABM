@@ -164,7 +164,7 @@ class House(Agent):
 
     def step(self):
         # this method  gets called once every year
-        self.price *= random.normalvariate(mu=self.model.house_price_change, sigma = 2*self.model.house_price_change)
+        self.price += (self.price * random.normalvariate(mu=self.model.house_price_change, sigma = 2*self.model.house_price_change)/100)
 
 
 
