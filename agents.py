@@ -5,7 +5,6 @@ from mesa.space import MultiGrid
 import random
 import scipy
 import numpy as np
-import income_dict as age_coef_dict
 
 class Household(Agent):
     def __init__(self, unique_id, model, pos):
