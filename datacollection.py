@@ -242,3 +242,16 @@ def total_agents(model):
     else:   
         return age_count
 
+def mean_house_price(model):
+    price = 0 ;   counter = 0
+    for agent in model.schedule_House.agents:
+        price += agent.price
+        counter += 1
+    return price / counter
+
+def mean_house_price_change(model):
+    priceChangeForecast = 0 ;   counter = 0
+    for agent in model.schedule_House.agents:
+        priceChangeForecast += agent.priceChangeForecast
+        counter += 1
+    return priceChangeForecast / counter
