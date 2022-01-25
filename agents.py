@@ -175,18 +175,16 @@ class Household(Agent):
                 break
 
 
-def set_initial_house_price():
-    mean_house_price = 400_000
-    parameter = 6.5
-    cd = scipy.random.chisquare(parameter, size=1)
 
-    """ Scale for Std """
-    cd = cd / (2 * parameter) ** 1 / 2
 
-    """ Adjust Mean so ~= 3484 (mean monthly Dutch Household Income) """
-    mean_chi = parameter / (2 * parameter) ** 1 / 2
-    cd = cd * (1 / mean_chi) * mean_house_price
-    return cd[0]
+
+
+
+
+
+
+
+
 
 
 class House(Agent):
@@ -195,8 +193,7 @@ class House(Agent):
         self.pos = pos
         # set initial house price
         self.house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
-        self.past_house_price_change = 0
-        self.price = set_initial_house_price()
+        self.price = self.set_initial_house_price()
         self.priceChange = self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100 
         self.priceChange_past = self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100 
         self.priceChange_av = (self.priceChange + self.priceChange_past)/2
@@ -220,6 +217,18 @@ class House(Agent):
         self.priceChange_past = self.priceChange_past + self.priceChange
         self.priceChangeForecast_av = (self.priceChange_past)/(self.model.period + 1)
 
+    def set_initial_house_price(self):
+        mean_house_price = 400_000
+        parameter = 6.5
+        cd = scipy.random.chisquare(parameter, size=1)
+
+        """ Scale for Std """
+        cd = cd / (2 * parameter) ** 1 / 2
+
+        """ Adjust Mean so ~= 3484 (mean monthly Dutch Household Income) """
+        mean_chi = parameter / (2 * parameter) ** 1 / 2
+        cd = cd * (1 / mean_chi) * mean_house_price
+        return cd[0]
 
 
 
