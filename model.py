@@ -71,7 +71,16 @@ class HousingMarket(Model):
                 "Average Household Income": average_household_income,
                 'Mean Household Age': mean_household_age,
                 'Mean House Price': mean_house_price,
-                'Mean Forecasted House Price Change': mean_house_price_change
+                'Mean Forecasted House Price Change': mean_house_price_change,
+                'Mean Household Age': mean_household_age,
+                "Age -25 amount": age_25_amount,
+                "Age 25-34 amount": age_25_34_amount,
+                "Age 35-44 amount": age_35_44_amount,
+                "Age 45-54 amount": age_45_54_amount,
+                "Age 55-64 amount": age_55_64_amount,
+                "Age 65-74 amount": age_65_74_amount,
+                "Age 75+ amount": age_75_plus_amount,
+                "Agent count": total_agents,
             },
             agent_reporters={
                 "Income": collect_income,

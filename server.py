@@ -62,7 +62,6 @@ average_savings_chart = ChartModule([
                     canvas_width=500, canvas_height=200,
                     data_collector_name='datacollector')
 
-
 average_income_chart = ChartModule([
                     {"Label": "Average Household Income", "Color": 'red'}],
                     canvas_width=500, canvas_height=200,
@@ -70,7 +69,6 @@ average_income_chart = ChartModule([
 
 
 mean_household_age_chart = ChartModule([
-                    {"Label": "Mean Household Age", "Color": 'green'},
                     {"Label": "Age -25 amount", "Color": "green"},
                     {"Label": "Age 25-34 amount", "Color": "blue"},
                     {"Label": "Age 35-44 amount", "Color": "pink"},
@@ -78,7 +76,6 @@ mean_household_age_chart = ChartModule([
                     {"Label": "Age 55-64 amount", "Color": "black"},
                     {"Label": "Age 65-74 amount", "Color": "yellow"},
                     {"Label": "Age 75+ amount", "Color": "orange"},
-                    {"Label": "Agent count", "Color": "red"},
                     {"Label": "Mean Household Age", "Color": 'green'}],
                     canvas_width=500, canvas_height=200,
                     data_collector_name='datacollector')
