@@ -20,8 +20,6 @@ class Household(Agent):
         self.monthly_ageing = 0
         self.strategy = np.random.choice(["naive", "sophisticated"])
 
-        
-
 
     def set_age(self):
         # if model is past initialisation, new agents in the model are "born" at youngest available age
@@ -82,6 +80,7 @@ class Household(Agent):
             return True
         else: 
             return False
+
 
     def step(self):
         """
@@ -196,32 +195,30 @@ class House(Agent):
         self.pos = pos
         # set initial house price
         self.house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
-        self.past_house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
+        self.past_house_price_change = 0
         self.price = set_initial_house_price()
         self.priceChange = self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100 
         self.priceChange_past = self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100 
         self.priceChange_av = (self.priceChange + self.priceChange_past)/2
         self.owner = None
         self.available = True
-        self.period = 0
 
     def set_availability(self, set_to):
         self.available = set_to
 
     def step(self):
-        # this method  gets called once every year
-        self.price += (self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100)
+        # Price shock once every year
+        if self.model.period % 12 == 0:
+            self.price += (self.price * random.normalvariate(mu=self.model.house_price_shock, sigma = 2*self.model.house_price_shock)/100)
+            # redraw the house change in the new market to introduce some stochasticity
+            self.house_price_change = random.random() if random.random() < 0.7 else random.random()*(-1) 
 
-        #self.priceChange = self.model.house_price_change*self.price
         self.priceChange = self.price * random.normalvariate(mu=self.house_price_change, sigma = 2*self.house_price_change)/100 
         self.price += self.priceChange
-        #self.house_price_change*self.price
-        #self.price *= self.model.house_price_change
-        #self.priceChangeForecast = self.price*self.model.house_price_change 
         self.priceChangeForecast = self.price + self.priceChange
-        self.period += 1
+        
         self.priceChange_past = self.priceChange_past + self.priceChange
-        self.priceChangeForecast_av = (self.priceChange_past)/(self.period + 1)
+        self.priceChangeForecast_av = (self.priceChange_past)/(self.model.period + 1)
 
 
 
