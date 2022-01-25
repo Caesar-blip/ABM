@@ -113,7 +113,7 @@ class Household(Agent):
         # depending on their strategy an agent will have a different procedure for deciding whether to sell:
         elif (self.house and self.strategy == "naive"):
             # not everybody is actively checking the market at every step
-            if random.random() < 0.5 or self.empty_neighborhood == True:
+            if random.random() < (1 - 0.01 * self.age) or self.empty_neighborhood == True:
                 for house in available_houses:
                     if house.priceChangeForecast > self.house.priceChangeForecast and house.price < self.equity:
                         # list own house
@@ -121,7 +121,7 @@ class Household(Agent):
                         self.buy_house(available_houses)
         elif (self.house and self.strategy == "sophisticated"):
             # not everybody is actively checking the market at every step
-            if random.random() < 0.5 or self.empty_neighborhood == True:
+            if random.random() < (1 - 0.01 * self.age) or self.empty_neighborhood == True:
                 for house in available_houses:
                     if house.priceChangeForecast_av > self.house.priceChangeForecast_av and house.price < self.equity:
                         # list own house
