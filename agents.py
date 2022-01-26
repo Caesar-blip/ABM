@@ -178,6 +178,14 @@ class Household(Agent):
                 self.house.owner = None
             self.model.remove_agent(self)
 
+        # Death dynamics modeld after Gompertz law 
+        if self.monthly_ageing == 11:
+            if 0.0005 + 10**(-4.2+0.038*self.age) >= random.uniform(0,1):
+                if self.house:
+                    self.house.set_availability(True)
+                    self.house.owner = None
+                self.model.remove_agent(self)
+    
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
 
