@@ -43,7 +43,9 @@ class HousingMarket(Model):
         self.price_upper = price_upper
         self.incomes, self.income_distr = self.draw_income_distribution()
         self.ages, self.age_distr = self.draw_age_distribution()
-        self.inflation = inflation
+
+        self.inflation = 0
+        self.income_distribution = np.load("Income Data/income_distribution.npy")
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
 
@@ -198,8 +200,14 @@ class HousingMarket(Model):
         '''
 
         self.schedule.steps += 1
+
+        """ Calculate monthly adjusted inflation and adjust incomes based on that """
+        self.inflation = np.random.normal(loc=0.02, scale=0.04, size=1)[0] / 12
+        self.income_distribution[:, 1] *= 1 + self.inflation
+
         # Introduce a market shock every year
         if self.period % 12 == 0:
+            print(self.inflation)
             self.house_price_shock = random.randint(-3 + self.inflation,3 + self.inflation)
     
         self.schedule_House.step()
