@@ -84,6 +84,7 @@ class Household(Agent):
                 if bin > 72: bin = 72
                 elif bin < 0: bin = 0
                 return self.model.income_distribution[bin, 1], bin, self.model.income_distribution[bin, column]
+        return self.model.income_distribution[72, 1], 72, self.model.income_distribution[72, column]
 
     def empty_neighborhood(self):
         # an agent looks around and checks if the majority of houses in their vincinity are empty
@@ -114,7 +115,7 @@ class Household(Agent):
             self.monthly_ageing = 0
 
         # Update the income of the agent
-        print(f" income = {self.income} \n bin = {self.bin} \n percentile = {self.percentile}")
+        # print(f" income = {self.income} \n bin = {self.bin} \n percentile = {self.percentile}")
         self.income, self.bin, self.percentile = self.update_income_bin_percentile()
         # calculate equity
         if self.house:

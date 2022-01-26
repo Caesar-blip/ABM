@@ -208,7 +208,7 @@ class HousingMarket(Model):
         self.inflation = np.random.normal(loc=.00186, scale=.00115, size=1)[0]
         self.total_inflation += self.inflation
         self.income_distribution[:, 1] *= 1 + self.inflation
-        print(self.income_distribution[:, 2])
+        # print(self.income_distribution[:, 2])
 
         # Introduce a market shock every year
         if self.period % 12 == 0:
