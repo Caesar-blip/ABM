@@ -200,6 +200,7 @@ class HousingMarket(Model):
         '''
         Method that calls the step method
         '''
+        print(f"Step: {self.schedule.steps}") 
 
         self.schedule.steps += 1
 
@@ -212,8 +213,9 @@ class HousingMarket(Model):
 
         # Introduce a market shock every year
         if self.period % 12 == 0:
-            # print(self.inflation)
-            self.house_price_shock = np.random.uniform(-3 + self.inflation, 3 + self.inflation, size=1)[0]
+            #print(self.inflation)
+            self.house_price_shock = random.randint(int(-3 + self.inflation),int(3 + self.inflation))
+    
 
         self.schedule_House.step()
 
