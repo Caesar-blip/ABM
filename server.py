@@ -90,10 +90,21 @@ mean_forecasted_price_chart = ChartModule([
                     canvas_width=500, canvas_height=200,
                     data_collector_name='datacollector')
 
+inflation_chart = ChartModule([
+                    {"Label": "Inflation", "Color": 'blue'}],
+                    canvas_width=500, canvas_height=200,
+                    data_collector_name='datacollector')
+
+total_inflation_chart = ChartModule([
+                    {"Label": "Total Inflation", "Color": 'blue'}],
+                    canvas_width=500, canvas_height=200,
+                    data_collector_name='datacollector')
+
 # Create the server, and pass the grid and the graph
 server = ModularServer(
                     HousingMarket,
-                    [grid, gini_char, average_savings_chart, average_income_chart, mean_household_age_chart, mean_house_price_chart, mean_forecasted_price_chart],
+                    [grid, gini_char, average_savings_chart, average_income_chart, mean_household_age_chart,
+                     mean_house_price_chart, mean_forecasted_price_chart, inflation_chart, total_inflation_chart],
                     "Housing Market Model",
                     {'rental_cost': 2000,
                      'initial_houses': 900,
