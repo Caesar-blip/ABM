@@ -79,24 +79,11 @@ class Household(Agent):
 
         random_walk_bin = np.random.normal(loc=0, scale=1, size=1).astype(int)[0]
         for row in self.model.income_distribution:
-<<<<<<< HEAD
-            if self.percentile < row[column]:
-                if int(row[0] + random_walk_bin) >= 73 or int(row[0] + random_walk_bin) <= 0: 
-                    bin = int(row[0])
-
-                else:
-                    print(row[column])
-                    bin = int(row[0] + random_walk_bin)
-                break 
-
-        return self.model.income_distribution[bin, 1], bin, self.model.income_distribution[bin, column]
-=======
             if self.percentile <= row[column]:
                 bin = int(row[0] + random_walk_bin)
                 if bin > 72: bin = 72
                 elif bin < 0: bin = 0
                 return self.model.income_distribution[bin, 1], bin, self.model.income_distribution[bin, column]
->>>>>>> 42a07f07af985b4729e5e703f738955aad90a7a9
 
     def empty_neighborhood(self):
         # an agent looks around and checks if the majority of houses in their vincinity are empty
@@ -127,8 +114,9 @@ class Household(Agent):
             self.monthly_ageing = 0
 
         # Update the income of the agent
-        print(f" income = {self.income} \n bin = {self.bin} \n percentile = {self.percentile}")
+
         self.income, self.bin, self.percentile = self.update_income_bin_percentile()
+
         # calculate equity
         if self.house:
             # print(self.house.price)

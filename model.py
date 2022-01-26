@@ -213,15 +213,10 @@ class HousingMarket(Model):
 
         # Introduce a market shock every year
         if self.period % 12 == 0:
-<<<<<<< HEAD
             #print(self.inflation)
             self.house_price_shock = random.randint(int(-3 + self.inflation),int(3 + self.inflation))
     
-=======
-            # print(self.inflation)
-            self.house_price_shock = np.random.uniform(-3 + self.inflation, 3 + self.inflation, size=1)[0]
 
->>>>>>> 42a07f07af985b4729e5e703f738955aad90a7a9
         self.schedule_House.step()
 
         self.schedule_Household.step()
