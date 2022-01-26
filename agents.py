@@ -43,11 +43,20 @@ class Household(Agent):
             return 20
 
         # if model is initialised, distribute age following Dutch age distribution among agents
+	# This is done using Acceptance-Rejection Sampling
+
+        ages = self.model.age_distr[0]
+        ages_counts = self.model.age_distr[1]
 
         for i in range(len(self.model.ages)):
-            if random.random() < self.model.age_distr[i]:
-                return self.model.ages[i] 
-	      
+            while True:
+                x = random.randrange(0, 80)
+                y = random.uniform(0, 250000)
+
+                if ages_counts[x] >= y:
+                    # Shift to match age
+                    return x + 20
+			
 
     def set_income(self):
         age = self.age
