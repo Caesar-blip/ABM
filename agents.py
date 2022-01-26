@@ -43,16 +43,20 @@ class Household(Agent):
             return 20
 
         # if model is initialised, distribute age following Dutch age distribution among agents
+	# This is done using Acceptance-Rejection Sampling
+
+        ages = self.model.age_distr[0]
+        ages_counts = self.model.age_distr[1]
 
         for i in range(len(self.model.ages)):
-            ret = False
-            while ret == False:
-                x = random.uniform(0.2, 1)
-                y = random.uniform(0, 1)
+            while True:
+                x = random.randrange(0, 80)
+                y = random.uniform(0, 250000)
 
-                if y <= -x**6 + 1:
-                    return int(x * 100)
-	      
+                if ages_counts[x] >= y:
+                    # Shift to match age
+                    return x + 20
+			
 
     def set_income(self):
         age = self.age
@@ -178,6 +182,14 @@ class Household(Agent):
                 self.house.owner = None
             self.model.remove_agent(self)
 
+        # Death dynamics modeld after Gompertz law 
+        if self.monthly_ageing == 11:
+            if 0.0005 + 10**(-4.2+0.038*self.age) >= random.uniform(0,1):
+                if self.house:
+                    self.house.set_availability(True)
+                    self.house.owner = None
+                self.model.remove_agent(self)
+    
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
 

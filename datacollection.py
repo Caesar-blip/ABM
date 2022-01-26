@@ -10,6 +10,8 @@ def average_household_income(model):
     for agent in model.schedule_Household.agents:
         total += agent.income
         agent_count += 1
+    if agent_count == 0:
+        return total        
     return total / agent_count
 
 
@@ -22,7 +24,9 @@ def gini_coefficient(model):
     diffsum = 0
     for i, xi in enumerate(x[:-1], 1):
         diffsum += np.sum(np.abs(xi - x[i:]))
-    return diffsum / (len(x) ** 2 * np.mean(x))
+    if len(x) == 0:
+        return 0
+    return diffsum / (len(x) ** 2 * np.nanmean(x))
 
 
 def collect_income(Agent):
@@ -44,7 +48,8 @@ def mean_household_age(model):
     for agent in model.schedule_Household.agents:
         ages += agent.age
         counter += 1
-
+    if counter == 0:
+        return ages
     return ages / counter
 
 

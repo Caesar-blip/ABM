@@ -125,6 +125,8 @@ class HousingMarket(Model):
         # we consider housing market participants in age range 20-100
         ages = ages[20:]
         age_counts = age_counts[20:]
+
+        '''
         cum_counts = []
         for i in range(len(age_counts)):
             cum_counts.append(sum(age_counts[:i + 1]))
@@ -132,8 +134,9 @@ class HousingMarket(Model):
         pop_count = sum(age_counts)
 
         cum_ratios = [x / pop_count for x in cum_counts]
+        '''
 
-        return ages, cum_ratios
+        return ages, [ages,age_counts] 
 
     def initialize_population(self, agent_type, n):
         for i in range(n):
