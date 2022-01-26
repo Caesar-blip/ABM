@@ -45,13 +45,8 @@ class Household(Agent):
         # if model is initialised, distribute age following Dutch age distribution among agents
 
         for i in range(len(self.model.ages)):
-            ret = False
-            while ret == False:
-                x = random.uniform(0.2, 1)
-                y = random.uniform(0, 1)
-
-                if y <= -x**6 + 1:
-                    return int(x * 100)
+            if random.random() < self.model.age_distr[i]:
+                return self.model.ages[i] 
 	      
 
     def set_income(self):
