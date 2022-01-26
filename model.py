@@ -10,7 +10,6 @@ from agents import *
 from datacollection import *
 
 
-
 class HouseActivation(RandomActivation):
     def __init__(self, model):
         super().__init__(model)
@@ -45,6 +44,7 @@ class HousingMarket(Model):
         self.ages, self.age_distr = self.draw_age_distribution()
 
         self.inflation = 0
+        self.total_inflation = 0
         self.income_distribution = np.load("Income Data/income_distribution.npy")
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
@@ -74,7 +74,6 @@ class HousingMarket(Model):
                 'Mean Household Age': mean_household_age,
                 'Mean House Price': mean_house_price,
                 'Mean Forecasted House Price Change': mean_house_price_change,
-                'Mean Household Age': mean_household_age,
                 "Age -25 amount": age_25_amount,
                 "Age 25-34 amount": age_25_34_amount,
                 "Age 35-44 amount": age_35_44_amount,
@@ -83,13 +82,15 @@ class HousingMarket(Model):
                 "Age 65-74 amount": age_65_74_amount,
                 "Age 75+ amount": age_75_plus_amount,
                 "Agent count": total_agents,
+                "Inflation": get_inflation,
+                "Total Inflation": get_total_inflation
             },
             agent_reporters={
                 "Income": collect_income,
                 "Price": 'price',
                 "Age": collect_ages,
             })
-        
+
         self.initialize_population(House, self.initial_houses)
         self.initialize_population(Household, self.initial_households)
         self.assign_houses()
@@ -138,7 +139,7 @@ class HousingMarket(Model):
         cum_ratios = [x / pop_count for x in cum_counts]
         '''
 
-        return ages, [ages,age_counts] 
+        return ages, [ages, age_counts]
 
     def initialize_population(self, agent_type, n):
         for i in range(n):
@@ -147,12 +148,13 @@ class HousingMarket(Model):
                 y = random.randrange(1, self.height)
             else:
                 y = random.randrange(self.height)
-            
+
             self.new_agent(agent_type, (x, y))
 
     def assign_houses(self):
         _len = len(self.schedule_House.agents)
-        if len(self.schedule_Household.agents) < len(self.schedule_House.agents) : _len = len(self.schedule_Household.agents)
+        if len(self.schedule_Household.agents) < len(self.schedule_House.agents): _len = len(
+            self.schedule_Household.agents)
         for i in range(_len):
             self.schedule_House.agents[i].set_availability(False)
             self.schedule_Household.agents[i].house = self.schedule_House.agents[i]
@@ -203,14 +205,23 @@ class HousingMarket(Model):
         self.schedule.steps += 1
 
         """ Calculate monthly adjusted inflation and adjust incomes based on that """
-        self.inflation = np.random.normal(loc=0.02, scale=0.04, size=1)[0] / 12
+        # Derived from Historical CPI data (US 2010->2021)
+        self.inflation = np.random.normal(loc=.00186, scale=.00115, size=1)[0]
+        self.total_inflation += self.inflation
         self.income_distribution[:, 1] *= 1 + self.inflation
+        print(self.income_distribution[:, 2])
 
         # Introduce a market shock every year
         if self.period % 12 == 0:
+<<<<<<< HEAD
             #print(self.inflation)
             self.house_price_shock = random.randint(int(-3 + self.inflation),int(3 + self.inflation))
     
+=======
+            # print(self.inflation)
+            self.house_price_shock = np.random.uniform(-3 + self.inflation, 3 + self.inflation, size=1)[0]
+
+>>>>>>> 42a07f07af985b4729e5e703f738955aad90a7a9
         self.schedule_House.step()
 
         self.schedule_Household.step()
