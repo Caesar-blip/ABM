@@ -81,9 +81,14 @@ class Household(Agent):
         bin = None
         for row in self.model.income_distribution:
             if self.percentile < row[column]:
-                print(row[column])
-                bin = int(row[0] + random_walk_bin)
-                break
+                if int(row[0] + random_walk_bin) >= 73 or int(row[0] + random_walk_bin) <= 0: 
+                    bin = int(row[0])
+
+                else:
+                    print(row[column])
+                    bin = int(row[0] + random_walk_bin)
+                break 
+
         return self.model.income_distribution[bin, 1], bin, self.model.income_distribution[bin, column]
 
     def empty_neighborhood(self):
