@@ -253,7 +253,7 @@ class House(Agent):
         super().__init__(unique_id, model)
         self.pos = pos
         # set initial house price
-        self.house_price_change = random.random() if random.random() < 0.7 else random.random() * (-1)
+        self.house_price_change = random.random() if random.random() < 0.5 else random.random() * (-1)
         self.price = self.set_initial_house_price()
         self.priceChange = self.price * random.normalvariate(mu=self.house_price_change,
                                                              sigma=2 * self.house_price_change) / 100
@@ -272,7 +272,7 @@ class House(Agent):
             self.price += (self.price * random.normalvariate(mu=self.model.house_price_shock,
                                                              sigma=2 * self.model.house_price_shock) / 100)
             # redraw the house change in the new market to introduce some stochasticity
-            self.house_price_change = random.random() if random.random() < 0.7 else random.random() * (-1)
+            self.house_price_change = random.random() if random.random() < 0.5 else random.random() * (-1)
 
         self.priceChange = self.price * random.normalvariate(mu=self.house_price_change,
                                                              sigma=2 * self.house_price_change) / 100
