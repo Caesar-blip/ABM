@@ -61,7 +61,7 @@ class Household(Agent):
         column = 8
         for inx, column_age in enumerate([25, 35, 45, 55, 65, 75]):
             if self.age < column_age:
-                column = inx + 2;
+                column = inx + 2
                 break
 
         rn = np.random.uniform(0, 1, 1)[0]
