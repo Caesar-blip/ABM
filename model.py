@@ -20,7 +20,7 @@ class HouseActivation(RandomActivation):
 
 
 class HousingMarket(Model):
-    def __init__(self, height=20, width=20, initial_houses=100, initial_households=150, rental_cost=1000,
+    def __init__(self, height=20, width=20, initial_houses=100, initial_households=150,
                  savings_lower=0, savings_upper=0, price_lower=100000, price_upper=1000000,
                  payoff_perc_freehold=0.0025, inflation=0.02):
         super().__init__()
@@ -29,9 +29,6 @@ class HousingMarket(Model):
         self.initial_houses = initial_houses
         self.initial_households = initial_households
         self.rentals = self.initial_households - initial_houses
-
-        # rental_cost is obsolete now, we use payoff_perc_freehold
-        self.rental_cost = rental_cost
 
         # determines the percentage of house price that you pay off
         self.payoff_perc_freehold = payoff_perc_freehold
@@ -45,6 +42,7 @@ class HousingMarket(Model):
 
         self.inflation = inflation
         self.total_inflation = 0
+        self.yearly_inflation = 0
         self.income_distribution = np.load("Income Data/income_distribution.npy")
 
         self.grid = MultiGrid(self.width, self.height, torus=True)
@@ -209,10 +207,12 @@ class HousingMarket(Model):
         self.inflation = np.random.normal(loc=.00186, scale=.00115, size=1)[0]
         self.total_inflation += self.inflation
         self.income_distribution[:, 1] *= 1 + self.inflation
+        self.yearly_inflation += self.inflation
 
         # Introduce a market shock every year
         if self.period % 12 == 0:
-            self.house_price_shock = random.uniform(-3 + 100*self.inflation,3 + 100*self.inflation)
+            self.house_price_shock = random.uniform(-3 + 100*self.yearly_inflation,3 + 100*self.yearly_inflation)
+            self.yearly_inflation = 0
     
 
         self.schedule_House.step()

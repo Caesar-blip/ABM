@@ -106,8 +106,7 @@ server = ModularServer(
                     [grid, gini_char, average_savings_chart, average_income_chart, mean_household_age_chart,
                      mean_house_price_chart, mean_forecasted_price_chart, inflation_chart, total_inflation_chart],
                     "Housing Market Model",
-                    {'rental_cost': 2000,
-                     'initial_houses': 900,
+                    {'initial_houses': 900,
                      'initial_households': 1000
                      })
 
