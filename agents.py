@@ -21,8 +21,28 @@ class Household(Agent):
         self.monthly_ageing = 0
         self.strategy = np.random.choice(["naive", "sophisticated"])
 
+<<<<<<< Updated upstream
         
 
+=======
+        # Fix risk attitude parameters
+        self.alpha = np.random.normal(mu = 0.79, sigma=0.3)
+        self.beta = np.random.normal(mu = 1.13, sigma=0.66)
+        self.lmbda = np.random.normal(mu = 1.35, sigma=2.59)
+
+    
+    def get_mortgage_quote(self):
+        """
+        Calculates mortage quote based on monthly household disposable income
+        Example:
+        - Disposable income (mean) of 3500 per month ~ 42k per year ~ 60k gross per year
+        - Based on several mortgage calculators, mortgage is ~ 5-6x gross income. 
+        - i.e. 60k should result in 300k. Thus, disposable income is ~ 8x to mortgage
+        - (this is a naive and deterministic mortgage quote)
+        """
+        deterministic_quote = self.income * 12 * 8 
+        return deterministic_quote
+>>>>>>> Stashed changes
 
     def set_age(self):
         # if model is past initialisation, new agents in the model are "born" at youngest available age
@@ -189,6 +209,7 @@ class Household(Agent):
         # depending on their strategy an agent will have a different procedure for deciding whether to sell:
         elif (self.house and self.strategy == "naive"):
             # not everybody is actively checking the market at every step
+<<<<<<< Updated upstream
             if random.random() < 0.5 or self.empty_neighborhood == True:
                 for house in available_houses:
                     if house.priceChangeForecast > self.house.priceChangeForecast and house.price < self.equity:
@@ -207,6 +228,83 @@ class Household(Agent):
             # this could be the increased and decreased if someone is risk averse
             #if random.random() < 0.1:
             #    self.house.set_availability(True)
+=======
+            if random.random() < (1 - 0.01 * self.age) or self.empty_neighborhood == True:
+
+                # get new mortgage quote based on current income
+                mortgage_quote = self.get_mortgage_quote()
+
+                if self.house:
+                    # calculate expected money gained from selling current house
+                    house_mortgage_differential = self.house.priceChangeForecast - self.mortgage
+                else:
+                    house_mortgage_differential = 0
+
+                # calculate total available money for buying a house
+                available_money = mortgage_quote + house_mortgage_differential + self.savings
+
+                # sample houses (in neighborhood?)
+                house_sample = random.sample(available_houses, k = 100)
+                
+                # obtain probability of ending up in a given house:
+                attractive_houses = 0
+                affordable_houses = 0
+                for house in house_sample:
+                    if self.house.priceChangeForecast > house.priceChangeForecast and house.price < available_money:
+                        attractive_houses += 1
+                    if house.price < available_money:
+                        affordable_houses += 1
+                prob_buy = attractive_houses/affordable_houses
+
+                # obtain expected utility of buying a new house on the market:
+                expected_utility = 0
+                for house in house_sample:
+                    expected_utility += utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha. beta = self.beta, lmbda = self.lmbda)*prob_buy
+                
+                # list own house
+                if expected_utility > 0:
+                    self.house.set_availability(True)
+
+        elif (self.house and self.strategy == "sophisticated"):
+            # not everybody is actively checking the market at every step
+            if random.random() < (1 - 0.01 * self.age) or self.empty_neighborhood == True:
+
+                # get new mortgage quote based on current income
+                mortgage_quote = self.get_mortgage_quote()
+
+                if self.house:
+                    # calculate expected money gained from selling current house
+                    house_mortgage_differential = self.house.priceChangeForecast - self.mortgage
+                else:
+                    house_mortgage_differential = 0
+                    
+                # calculate total available money for buying a house
+                available_money = mortgage_quote + house_mortgage_differential + self.savings
+
+                # sample houses (in neighborhood?)
+                house_sample = random.sample(available_houses, k = 100)
+                
+                # obtain probability of ending up in a given house:
+                attractive_houses = 0
+                affordable_houses = 0
+                for house in house_sample:
+                    if self.house.priceChangeForecast_av > house.priceChangeForecast_av and house.price < available_money:
+                        attractive_houses += 1
+                    if house.price < available_money:
+                        affordable_houses += 1
+
+                prob_buy = attractive_houses/affordable_houses
+
+                # obtain expected utility of buying a new house on the market:
+                expected_utility = 0
+                for house in house_sample:
+                    expected_utility += utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha. beta = self.beta, lmbda = self.lmbda)*prob_buy
+                
+                # list own house
+                if expected_utility > 0:
+                    self.house.set_availability(True)
+
+>>>>>>> Stashed changes
         # always buy a house if you are renting, this could be enhanced if there was a bidding stage
         else:
             self.buy_house(available_houses)
@@ -217,6 +315,13 @@ class Household(Agent):
                 self.house.set_availability(True)
             self.model.remove_agent(self)
 
+    def utility(x, alpha, beta, lmbda):
+        # This function defines the agents' utility, where x is the expected gain or loss, alpha and beta are risk attitude parameters for gains and losses respectively and lambda is the loss aversion constant.
+        if x > 0:
+            return x^alpha
+        else:
+            return (abs(x)^beta)*lmbda*-1)
+    
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
 
