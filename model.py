@@ -22,13 +22,25 @@ class HouseActivation(RandomActivation):
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=100, initial_households=150,
                  savings_lower=0, savings_upper=0, price_lower=100000, price_upper=1000000,
-                 payoff_perc_freehold=0.0025, inflation=0.02):
+                 payoff_perc_freehold=0.0025, inflation=0.02, house_price=400_000,
+                 chi_parameter=6.5, maximum_age=100, minimum_age=20, age_utility_scaling = 0.01,
+                 maximum_moving_age=65, bank_income_multiplier=8, fraction_good_houses=0.5,
+                 price_shock_range=6):
         super().__init__()
         self.height = width
         self.width = height
         self.initial_houses = initial_houses
         self.initial_households = initial_households
         self.rentals = self.initial_households - initial_houses
+        self.house_price = house_price
+        self.chi_parameter = chi_parameter
+        self.maximum_age = maximum_age
+        self.minimum_age = minimum_age
+        self.age_utility_scaling = age_utility_scaling
+        self.maximum_moving_age = maximum_moving_age
+        self.bank_income_multiplier = bank_income_multiplier
+        self.fraction_good_houses = fraction_good_houses
+        self.price_shock_range = price_shock_range
 
         # determines the percentage of house price that you pay off
         self.payoff_perc_freehold = payoff_perc_freehold
@@ -211,7 +223,7 @@ class HousingMarket(Model):
 
         # Introduce a market shock every year
         if self.period % 12 == 0:
-            self.house_price_shock = random.uniform(-3 + 100*self.yearly_inflation,3 + 100*self.yearly_inflation)
+            self.house_price_shock = random.uniform(-0.5*self.price_shock_range + 100*self.yearly_inflation,0.5*self.price_shock_range + 100*self.yearly_inflation)
             self.yearly_inflation = 0
     
 

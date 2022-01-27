@@ -24,23 +24,12 @@ class Household(Agent):
         self.monthly_ageing = 0
         self.strategy = np.random.choice(["naive", "sophisticated"])
 
-    def get_mortgage_quote(self):
-        """
-        Calculates mortage quote based on monthly household disposable income
-        Example:
-        - Disposable income (mean) of 3500 per month ~ 42k per year ~ 60k gross per year
-        - Based on several mortgage calculators, mortgage is ~ 5-6x gross income. 
-        - i.e. 60k should result in 300k. Thus, disposable income is ~ 8x to mortgage
-        - (this is a naive and deterministic mortgage quote)
-        """
-        deterministic_quote = self.income * 12 * 8
-        return deterministic_quote
 
     def set_age(self):
         # if model is past initialisation, new agents in the model are "born" at youngest available age
 
         if self.model.period > 0:
-            return 20
+            return self.model.minimum_age
 
         # if model is initialised, distribute age following Dutch age distribution among agents
         # This is done using Acceptance-Rejection Sampling
@@ -69,40 +58,6 @@ class Household(Agent):
             if rn < row[column]:
                 return row[1], int(row[0]), row[column]
 
-    def update_income_bin_percentile(self):
-        # Get column relative to the age
-        column = 8
-        for inx, column_age in enumerate([25, 35, 45, 55, 65, 75]):
-            if self.age < column_age:
-                column = inx + 2
-                break
-
-        random_walk_bin = np.random.normal(loc=0, scale=1, size=1).astype(int)[0]
-        for row in self.model.income_distribution:
-            if self.percentile <= row[column]:
-                bin = int(row[0] + random_walk_bin)
-                if bin > 72: bin = 72
-                elif bin < 0: bin = 0
-                return self.model.income_distribution[bin, 1], bin, self.model.income_distribution[bin, column]
-        return self.model.income_distribution[72, 1], 72, self.model.income_distribution[72, column]
-
-    def empty_neighborhood(self):
-        # an agent looks around and checks if the majority of houses in their vincinity are empty
-        # if they are, the agent decides to move away too
-        houses = 0
-        for neighbor in self.model.grid.neighbor_iter(self.pos):
-            if neighbor.type != self.type:
-                houses += 1
-
-        empty_houses = 0
-        for neighbor in self.model.grid.neighbor_iter(self.pos):
-            if neighbor.type != self.type & neighbor.available:
-                empty_houses += 1
-
-        if empty_houses / houses > 0.4:
-            return True
-        else:
-            return False
 
     def step(self):
         """
@@ -129,14 +84,13 @@ class Household(Agent):
         available_houses = self.model.schedule_House.get_available()
 
         # decide whether to sell your house
-        # agents only sell if they are between 20 and 65
-        if (self.age < 20 or self.age > 65):
+        if (self.age < self.model.minimum_age or self.age > self.model.maximum_moving_age):
             pass
 
         # depending on their strategy an agent will have a different procedure for deciding whether to sell:
         elif (self.house and self.strategy == "naive"):
             # not everybody is actively checking the market at every step
-            if random.random() < (1 - 0.01 * self.age) or self.empty_neighborhood == True:
+            if random.random() < (1 - self.model.age_utility_scaling * self.age) or self.empty_neighborhood == True:
 
                 # get new mortgage quote based on current income
                 mortgage_quote = self.get_mortgage_quote()
@@ -157,7 +111,7 @@ class Household(Agent):
 
         elif (self.house and self.strategy == "sophisticated"):
             # not everybody is actively checking the market at every step
-            if random.random() < (1 - 0.01 * self.age) or self.empty_neighborhood == True:
+            if random.random() < (1 - self.model.age_utility_scaling * self.age) or self.empty_neighborhood == True:
 
                 # get new mortgage quote based on current income
                 mortgage_quote = self.get_mortgage_quote()
@@ -181,7 +135,7 @@ class Household(Agent):
             self.buy_house(available_houses)
 
         # for now implement simple death rule, agent exits model at age of 100
-        if self.age == 100:
+        if self.age == self.model.maximum_age:
             if self.house:
                 self.house.set_availability(True)
                 self.house.owner = None
@@ -194,6 +148,7 @@ class Household(Agent):
                     self.house.set_availability(True)
                     self.house.owner = None
                 self.model.remove_agent(self)
+
 
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
@@ -248,12 +203,58 @@ class Household(Agent):
                 break
 
 
+    def update_income_bin_percentile(self):
+        # Get column relative to the age
+        column = 8
+        for inx, column_age in enumerate([25, 35, 45, 55, 65, 75]):
+            if self.age < column_age:
+                column = inx + 2
+                break
+        random_walk_bin = np.random.normal(loc=0, scale=1, size=1).astype(int)[0]
+        for row in self.model.income_distribution:
+            if self.percentile <= row[column]:
+                bin = int(row[0] + random_walk_bin)
+                if bin > 72: bin = 72
+                elif bin < 0: bin = 0
+                return self.model.income_distribution[bin, 1], bin, self.model.income_distribution[bin, column]
+        return self.model.income_distribution[72, 1], 72, self.model.income_distribution[72, column]
+
+
+    def empty_neighborhood(self):
+       # an agent looks around and checks if the majority of houses in their vincinity are empty
+       # if they are, the agent decides to move away too
+       houses = 0
+       for neighbor in self.model.grid.neighbor_iter(self.pos):
+           if neighbor.type != self.type:
+               houses += 1
+       empty_houses = 0
+       for neighbor in self.model.grid.neighbor_iter(self.pos):
+           if neighbor.type != self.type & neighbor.available:
+               empty_houses += 1
+       if empty_houses / houses > 0.4:
+           return True
+       else:
+           return False
+
+
+    def get_mortgage_quote(self):
+        """
+        Calculates mortage quote based on monthly household disposable income
+        Example:
+        - Disposable income (mean) of 3500 per month ~ 42k per year ~ 60k gross per year
+        - Based on several mortgage calculators, mortgage is ~ 5-6x gross income. 
+        - i.e. 60k should result in 300k. Thus, disposable income is ~ 8x to mortgage
+        - (this is a naive and deterministic mortgage quote)
+        """
+        deterministic_quote = self.income * 12 * self.model.bank_income_multiplier
+        return deterministic_quote
+
 class House(Agent):
     def __init__(self, unique_id, model, pos):
         super().__init__(unique_id, model)
         self.pos = pos
         # set initial house price
-        self.house_price_change = random.random() if random.random() < 0.5 else random.random() * (-1)
+        self.house_price_change = random.random() if random.random() < self.model.fraction_good_houses else random.random() * (-1)
         self.price = self.set_initial_house_price()
         self.priceChange = self.price * random.normalvariate(mu=self.house_price_change,
                                                              sigma=2 * self.house_price_change) / 100
@@ -283,16 +284,14 @@ class House(Agent):
         self.priceChangeForecast_av = (self.priceChange_past) / (self.model.period + 1)
 
     def set_initial_house_price(self):
-        mean_house_price = 400_000
-        parameter = 6.5
-        cd = scipy.random.chisquare(parameter, size=1)
+        cd = scipy.random.chisquare(self.model.chi_parameter, size=1)
 
         """ Scale for Std """
-        cd = cd / (2 * parameter) ** 1 / 2
+        cd = cd / (2 * self.model.chi_parameter) ** 1 / 2
 
         """ Adjust Mean so ~= 3484 (mean monthly Dutch Household Income) """
-        mean_chi = parameter / (2 * parameter) ** 1 / 2
-        cd = cd * (1 / mean_chi) * mean_house_price
+        mean_chi = self.model.chi_parameter / (2 * self.model.chi_parameter) ** 1 / 2
+        cd = cd * (1 / mean_chi) * self.model.house_price
         return cd[0]
 
 
