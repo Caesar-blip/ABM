@@ -121,9 +121,9 @@ class Household(Agent):
         if self.house:
             # print(self.house.price)
             self.savings += self.model.payoff_perc_freehold * self.house.price
-            self.equity = self.house.price + self.savings
+            self.equity = self.house.price + self.savings - self.mortgage
         else:
-            self.equity = self.savings
+            self.equity = self.savings - self.mortgage
 
         # all available houses
         available_houses = self.model.schedule_House.get_available()

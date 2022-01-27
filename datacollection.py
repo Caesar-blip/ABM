@@ -7,7 +7,7 @@ from model import *
 
 
 def average_household_income(model):
-    total = 0;
+    total = 0
     agent_count = 0
     for agent in model.schedule_Household.agents:
         total += agent.income
@@ -22,7 +22,7 @@ def gini_coefficient(model):
     # https://stackoverflow.com/questions/39512260/calculating-gini-coefficient-in-python-numpy
     x = np.empty(len(model.schedule_Household.agents))
     for i, agent in enumerate(model.schedule_Household.agents):
-        x[i] = agent.savings
+        x[i] = agent.equity
     diffsum = 0
     for i, xi in enumerate(x[:-1], 1):
         diffsum += np.sum(np.abs(xi - x[i:]))
@@ -46,7 +46,7 @@ def collect_ages(Agent):
 
 
 def mean_household_age(model):
-    ages = 0;
+    ages = 0
     counter = 0
     for agent in model.schedule_Household.agents:
         ages += agent.age
@@ -61,7 +61,7 @@ def average_savings(model):
     age_count = 0
 
     for agent in model.schedule_Household.agents:
-        age_savings += agent.savings
+        age_savings += agent.equity
         age_count += 1
 
     if age_count == 0:
@@ -71,12 +71,12 @@ def average_savings(model):
 
 
 def age_25_minus_savings(model):
-    age_savings = 0;
+    age_savings = 0
     age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(18, 25):
-            age_savings += agent.savings
+            age_savings += agent.equity
             age_count += 1
 
     if age_count == 0:
@@ -86,12 +86,12 @@ def age_25_minus_savings(model):
 
 
 def age_25_34_savings(model):
-    age_savings = 0;
+    age_savings = 0
     age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(25, 35):
-            age_savings += agent.savings
+            age_savings += agent.equity
             age_count += 1
 
     if age_count == 0:
@@ -101,12 +101,12 @@ def age_25_34_savings(model):
 
 
 def age_35_44_savings(model):
-    age_savings = 0;
+    age_savings = 0
     age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(35, 45):
-            age_savings += agent.savings
+            age_savings += agent.equity
             age_count += 1
 
     if age_count == 0:
@@ -116,12 +116,12 @@ def age_35_44_savings(model):
 
 
 def age_45_54_savings(model):
-    age_savings = 0;
+    age_savings = 0
     age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(45, 55):
-            age_savings += agent.savings
+            age_savings += agent.equity
             age_count += 1
 
     if age_count == 0:
@@ -131,12 +131,12 @@ def age_45_54_savings(model):
 
 
 def age_55_64_savings(model):
-    age_savings = 0;
+    age_savings = 0
     age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(55, 65):
-            age_savings += agent.savings
+            age_savings += agent.equity
             age_count += 1
 
     if age_count == 0:
@@ -146,12 +146,12 @@ def age_55_64_savings(model):
 
 
 def age_65_74_savings(model):
-    age_savings = 0;
+    age_savings = 0
     age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(65, 75):
-            age_savings += agent.savings
+            age_savings += agent.equity
             age_count += 1
 
     if age_count == 0:
@@ -161,12 +161,12 @@ def age_65_74_savings(model):
 
 
 def age_75_plus_savings(model):
-    age_savings = 0;
+    age_savings = 0
     age_count = 0
 
     for agent in model.schedule_Household.agents:
         if agent.age in range(75, 101):
-            age_savings += agent.savings
+            age_savings += agent.equity
             age_count += 1
 
     if age_count == 0:
