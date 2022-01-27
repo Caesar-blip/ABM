@@ -57,7 +57,7 @@ def mean_household_age(model):
 
 
 def average_savings(model):
-    age_savings = 0;
+    age_savings = 0
     age_count = 0
 
     for agent in model.schedule_Household.agents:
@@ -280,7 +280,7 @@ def total_agents(model):
 
 
 def mean_house_price(model):
-    price = 0;
+    price = 0
     counter = 0
     for agent in model.schedule_House.agents:
         price += agent.price
@@ -289,7 +289,7 @@ def mean_house_price(model):
 
 
 def mean_house_price_change(model):
-    priceChangeForecast = 0;
+    priceChangeForecast = 0
     counter = 0
     for agent in model.schedule_House.agents:
         priceChangeForecast += agent.priceChangeForecast

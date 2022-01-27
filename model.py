@@ -21,7 +21,7 @@ class HouseActivation(RandomActivation):
 
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=100, initial_households=150, rental_cost=1000,
-                 savings_lower=0, savings_upper=500000, price_lower=100000, price_upper=1000000,
+                 savings_lower=0, savings_upper=0, price_lower=100000, price_upper=1000000,
                  payoff_perc_freehold=0.0025, inflation=0.02):
         super().__init__()
         self.height = width
@@ -212,7 +212,7 @@ class HousingMarket(Model):
 
         # Introduce a market shock every year
         if self.period % 12 == 0:
-            self.house_price_shock = random.uniform(-3 + self.inflation,3 + self.inflation)
+            self.house_price_shock = random.uniform(-3 + 100*self.inflation,3 + 100*self.inflation)
     
 
         self.schedule_House.step()

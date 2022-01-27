@@ -11,7 +11,7 @@ class Household(Agent):
     def __init__(self, unique_id, model, pos):
         super().__init__(unique_id, model)
         self.pos = pos
-        self.model = model # might be wrong
+        self.model = model
         self.savings = random.randint(self.model.savings_lower, self.model.savings_upper)
         self.age = self.set_age()
 
