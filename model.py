@@ -171,16 +171,14 @@ class HousingMarket(Model):
             self.schedule_House.agents[i].owner = self.schedule_Household.agents[i]
             MultiGrid.move_agent(self=self.grid, agent=self.schedule_Household.agents[i],
                                  pos=self.schedule_House.agents[i].pos)
-
+    '''
     def init_population(self, agent_type, n):
-        '''
-        Method that provides an easy way of making a bunch of agents at once.
-        '''
         for i in range(n):
             x = random.randrange(self.width)
             y = random.randrange(self.height)
 
             self.new_agent(agent_type, (x, y))
+    '''         
 
     def new_agent(self, agent_type, pos):
         '''
