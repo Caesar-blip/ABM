@@ -123,7 +123,7 @@ class Household(Agent):
                 available_money = mortgage_quote + house_mortgage_differential + self.savings
 
                 # sample houses (in neighborhood?)
-                house_sample = random.sample(available_houses, k = 30) # k is to be adjusted depending on what's realistic
+                house_sample = random.sample(available_houses, k = len(available_houses)) # k is to be adjusted depending on what's realistic
                 
                 # obtain probability of ending up in a given house:
                 attractive_houses = 0
@@ -133,7 +133,11 @@ class Household(Agent):
                         attractive_houses += 1
                     if house.price < available_money:
                         affordable_houses += 1
-                prob_buy = attractive_houses/affordable_houses
+
+                if attractive_houses == 0 or affordable_houses == 0:
+                    prob_buy = 0
+                else:
+                    prob_buy = attractive_houses/affordable_houses
 
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
@@ -161,7 +165,7 @@ class Household(Agent):
                 available_money = mortgage_quote + house_mortgage_differential + self.savings
 
                 # sample houses (in neighborhood?)
-                house_sample = random.sample(available_houses, k = 30)
+                house_sample = random.sample(available_houses, k = len(available_houses))
                 
                 # obtain probability of ending up in a given house:
                 attractive_houses = 0
@@ -172,7 +176,10 @@ class Household(Agent):
                     if house.price < available_money:
                         affordable_houses += 1
 
-                prob_buy = attractive_houses/affordable_houses
+                if attractive_houses == 0 or affordable_houses == 0:
+                    prob_buy = 0
+                else:
+                    prob_buy = attractive_houses/affordable_houses
 
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
