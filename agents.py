@@ -142,7 +142,7 @@ class Household(Agent):
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
                 for house in house_sample:
-                    expected_utility += utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
+                    expected_utility += self.utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
                 
                 # list own house
                 if expected_utility > 0:
@@ -184,7 +184,7 @@ class Household(Agent):
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
                 for house in house_sample:
-                    expected_utility += utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
+                    expected_utility += self.utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
                 
                 # list own house
                 if expected_utility > 0:
@@ -210,12 +210,12 @@ class Household(Agent):
                 self.model.remove_agent(self)
 
 
-    def utility(x, alpha, beta, lmbda):
+    def utility(self, x, alpha, beta, lmbda):
         # This function defines the agents' utility, where x is the expected gain or loss, alpha and beta are risk attitude parameters for gains and losses respectively and lambda is the loss aversion constant.
         if x > 0:
-            return x^alpha
+            return x**alpha
         else:
-            return (abs(x)^(beta)*lmbda*(-1))
+            return (abs(x)**(beta)*lmbda*(-1))
     
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
