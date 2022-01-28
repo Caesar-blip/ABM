@@ -21,7 +21,7 @@ class HouseActivation(RandomActivation):
 
 class HousingMarket(Model):
     def __init__(self, height=20, width=20, initial_houses=100, initial_households=150,
-                 savings_lower=0, savings_upper=0, price_lower=100000, price_upper=1000000,
+                 savings_lower=0, savings_upper=100000, price_lower=100000, price_upper=1000000,
                  payoff_perc_freehold=0.0025, inflation=0.02, house_price=400_000,
                  chi_parameter=6.5, maximum_age=100, minimum_age=20, age_utility_scaling = 0.01,
                  maximum_moving_age=65, bank_income_multiplier=8, fraction_good_houses=0.5,
@@ -210,7 +210,7 @@ class HousingMarket(Model):
         '''
         Method that calls the step method
         '''
-        print(f"Step: {self.schedule.steps}") 
+        #print(f"Step: {self.schedule.steps}") 
 
         self.schedule.steps += 1
 

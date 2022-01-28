@@ -39,7 +39,7 @@ class Household(Agent):
         - i.e. 60k should result in 300k. Thus, disposable income is ~ 8x to mortgage
         - (this is a naive and deterministic mortgage quote)
         """
-        deterministic_quote = self.income * 12 * 8 
+        deterministic_quote = self.income * 12 * self.model.bank_income_multiplier
         return deterministic_quote
 
     def set_age(self):
