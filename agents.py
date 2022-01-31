@@ -12,7 +12,7 @@ class Household(Agent):
         super().__init__(unique_id, model)
         self.pos = pos
         self.model = model
-        self.savings = random.randint(self.model.savings_lower, self.model.savings_upper)
+        self.savings = random.randint(int(self.model.savings_lower), int(self.model.savings_upper))
         self.age = self.set_age()
 
         self.income, self.bin, self.percentile = self.initialize_income_bin_percentile()
