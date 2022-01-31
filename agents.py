@@ -214,6 +214,8 @@ class Household(Agent):
         # This function defines the agents' utility, where x is the expected gain or loss, alpha and beta are risk attitude parameters for gains and losses respectively and lambda is the loss aversion constant.
         if x > 0:
             return x**alpha
+        if x == 0:
+            return 0
         else:
             return (abs(x)**(beta)*lmbda*(-1))
     
