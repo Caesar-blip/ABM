@@ -29,7 +29,7 @@ class Household(Agent):
         self.beta = np.random.normal(loc = 1.13, scale=0.66)
         self.lmbda = np.random.normal(loc = 1.35, scale=2.59)
 
-    
+
     def get_mortgage_quote(self):
         """
         Calculates mortage quote based on monthly household disposable income
@@ -124,7 +124,7 @@ class Household(Agent):
 
                 # sample houses (in neighborhood?)
                 house_sample = random.sample(available_houses, k = len(available_houses)) # k is to be adjusted depending on what's realistic
-                
+
                 # obtain probability of ending up in a given house:
                 attractive_houses = 0
                 affordable_houses = 0
@@ -143,7 +143,7 @@ class Household(Agent):
                 expected_utility = 0
                 for house in house_sample:
                     expected_utility += self.utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
-                
+
                 # list own house
                 if expected_utility > 0:
                     self.house.set_availability(True)
@@ -160,13 +160,13 @@ class Household(Agent):
                     house_mortgage_differential = self.house.priceChangeForecast - self.mortgage
                 else:
                     house_mortgage_differential = 0
-                    
+
                 # calculate total available money for buying a house
                 available_money = mortgage_quote + house_mortgage_differential + self.savings
 
                 # sample houses (in neighborhood?)
                 house_sample = random.sample(available_houses, k = len(available_houses))
-                
+
                 # obtain probability of ending up in a given house:
                 attractive_houses = 0
                 affordable_houses = 0
@@ -185,7 +185,7 @@ class Household(Agent):
                 expected_utility = 0
                 for house in house_sample:
                     expected_utility += self.utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
-                
+
                 # list own house
                 if expected_utility > 0:
                     self.house.set_availability(True)
@@ -209,6 +209,14 @@ class Household(Agent):
                     self.house.owner = None
                 self.model.remove_agent(self)
 
+        # S_Policy Implementation
+        if self.model.s_policy == True and self.model.period > 30 and self.age == 20:
+            print('>>>>> Succes ')
+            self.savings += 20_000
+
+        if self.model.a_policy == True and self.model.period > 30 and self.age == 75:
+            print('>>>>> Succes ')
+            self.savings += 40_000
 
     def utility(self, x, alpha, beta, lmbda):
         # This function defines the agents' utility, where x is the expected gain or loss, alpha and beta are risk attitude parameters for gains and losses respectively and lambda is the loss aversion constant.
@@ -218,7 +226,7 @@ class Household(Agent):
             return 0
         else:
             return (abs(x)**(beta)*lmbda*(-1))
-    
+
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
 
