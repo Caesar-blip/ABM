@@ -222,7 +222,7 @@ class Household(Agent):
         '''
         Income Policy: if 25, 0 months and lower 10% then grant
         '''
-        if self.model.income_policy == True and self.model.period == 1 and self.bin in range(0,10):
+        if self.model.income_policy == True and self.age and self.model.period == 1 and self.bin in range(0,15):
             self.savings += 20_000
 
 
