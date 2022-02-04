@@ -217,10 +217,10 @@ class HousingMarket(Model):
 
         """ Calculate monthly adjusted inflation and adjust incomes based on that """
         # Derived from Historical CPI data (US 2010->2021)
-        self.inflation = np.random.normal(loc=.00186, scale=.00115, size=1)[0]
-        self.total_inflation += self.inflation
-        self.income_distribution[:, 1] *= 1 + self.inflation
-        self.yearly_inflation += self.inflation
+        self.monthly_inflation = np.random.normal(loc=self.inflation/12, scale=.00115, size=1)[0]
+        self.total_inflation += self.monthly_inflation
+        self.income_distribution[:, 1] *= 1 + self.monthly_inflation
+        self.yearly_inflation += self.monthly_inflation
 
         # Introduce a market shock every year
         if self.period % 12 == 0:

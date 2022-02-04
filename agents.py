@@ -23,6 +23,7 @@ class Household(Agent):
 
         self.monthly_ageing = 0
         self.strategy = np.random.choice(["naive", "sophisticated"])
+        self.months_renting = 0
 
         # Fix risk attitude parameters
         self.alpha = np.random.normal(loc = 0.79, scale=0.3)
@@ -39,6 +40,7 @@ class Household(Agent):
         - i.e. 60k should result in 300k. Thus, disposable income is ~ 8x to mortgage
         - (this is a naive and deterministic mortgage quote)
         """
+        
         deterministic_quote = self.income * 12 * self.model.bank_income_multiplier
         return deterministic_quote
 
@@ -50,7 +52,6 @@ class Household(Agent):
 
         # if model is initialised, distribute age following Dutch age distribution among agents
         # This is done using Acceptance-Rejection Sampling
-        ages = self.model.age_distr[0]
         ages_counts = self.model.age_distr[1]
 
         for i in range(len(self.model.ages)):
@@ -94,8 +95,10 @@ class Household(Agent):
             # print(self.house.price)
             self.savings += self.model.payoff_perc_freehold * self.house.price
             self.equity = self.house.price + self.savings - self.mortgage
+            self.months_renting = 0
         else:
             self.equity = self.savings - self.mortgage
+            self.months_renting += 1
 
         # all available houses
         available_houses = self.model.schedule_House.get_available()
