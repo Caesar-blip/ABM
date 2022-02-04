@@ -219,6 +219,13 @@ class Household(Agent):
         if self.model.a_policy == True and self.model.period > 30 and self.age == 75:
             self.savings += 40_000
 
+        '''
+        Income Policy: if 25, 0 months and lower 10% then grant
+        '''
+        if self.model.income_policy == True and self.model.period == 1 and self.bin in range(0,10):
+            self.savings += 20_000
+
+
     def utility(self, x, alpha, beta, lmbda):
         # This function defines the agents' utility, where x is the expected gain or loss, alpha and beta are risk attitude parameters for gains and losses respectively and lambda is the loss aversion constant.
         if x > 0:
