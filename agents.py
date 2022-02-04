@@ -210,12 +210,10 @@ class Household(Agent):
                 self.model.remove_agent(self)
 
         # S_Policy Implementation
-        if self.model.s_policy == True and self.model.period > 30 and self.age == 20:
-            print('>>>>> Succes ')
+        if self.model.s_policy == True and self.model.period > 0 and self.age == 20:
             self.savings += 20_000
 
         if self.model.a_policy == True and self.model.period > 30 and self.age == 75:
-            print('>>>>> Succes ')
             self.savings += 40_000
 
     def utility(self, x, alpha, beta, lmbda):
