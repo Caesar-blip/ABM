@@ -375,9 +375,13 @@ class House(Agent):
     def __init__(self, unique_id, model, pos):
         super().__init__(unique_id, model)
         self.pos = pos
+
         # set initial house price
-        self.house_price_change = random.random() if random.random() < self.model.fraction_good_houses else random.random() * (-1)
+
         self.price = self.set_initial_house_price()
+
+        self.house_price_change = random.random() if random.random() < self.model.fraction_good_houses else random.random() * (-1)
+
         self.priceChange = self.price * random.normalvariate(mu=self.house_price_change,
                                                              sigma=2 * self.house_price_change) / 100
         self.priceChange_past = self.price * random.normalvariate(mu=self.house_price_change,
@@ -386,22 +390,43 @@ class House(Agent):
         self.owner = None
         self.available = True
 
+        # naive agents assume the price change in the next period will be the same as in the last period
+        self.priceChangeForecast = self.priceChange
+
+        # more sophisticated agents have a memory and use a weighted average to make a forecast
+        self.priceChange_past = self.priceChange_past + self.priceChange
+        self.priceChangeForecast_av = (self.priceChange_past) / (self.model.period + 1)
+
+
     def set_availability(self, set_to):
         self.available = set_to
 
     def step(self):
         # Price shock once every year
         if self.model.period % 12 == 0:
-            self.price += (self.price * random.normalvariate(mu=self.model.house_price_shock,
+            
+            if random.random() < 0.7:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock,
                                                              sigma=2 * self.model.house_price_shock) / 100)
-            # redraw the house change in the new market to introduce some stochasticity
-            self.house_price_change = random.random() if random.random() < 0.5 else random.random() * (-1)
-
-        self.priceChange = self.price * random.normalvariate(mu=self.house_price_change,
-                                                             sigma=2 * self.house_price_change) / 100
+            else:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock,
+                                                             sigma=2 * self.model.house_price_shock) / 100)*(-1)
+        else:                                                     
+        
+        # add milder monthly price shocks
+            if random.random() < 0.7:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock*0.7,
+                                                             sigma=2 * self.model.house_price_shock*0.5) / 100)
+            else:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock*0.7,
+                                                             sigma=2 * self.model.house_price_shock*0.5) / 100)*(-1)
+    
         self.price += self.priceChange
-        self.priceChangeForecast = self.price + self.priceChange
 
+        # naive agents assume the price change in the next period will be the same as in the last period
+        self.priceChangeForecast = self.priceChange
+
+        # more sophisticated agents have a memory and use a weighted average to make a forecast
         self.priceChange_past = self.priceChange_past + self.priceChange
         self.priceChangeForecast_av = (self.priceChange_past) / (self.model.period + 1)
 

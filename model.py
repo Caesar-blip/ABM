@@ -86,7 +86,7 @@ class HousingMarket(Model):
                 "Average Household Income": average_household_income,
                 'Mean Household Age': mean_household_age,
                 'Mean House Price': mean_house_price,
-                'Mean Forecasted House Price Change': mean_house_price_change,
+                'Mean House Price Change': mean_house_price_change,
                 "Age -25 amount": age_25_amount,
                 "Age 25-34 amount": age_25_34_amount,
                 "Age 35-44 amount": age_35_44_amount,
@@ -222,10 +222,9 @@ class HousingMarket(Model):
         self.income_distribution[:, 1] *= 1 + self.monthly_inflation
         self.yearly_inflation += self.monthly_inflation
 
-        # Introduce a market shock every year
-        if self.period % 12 == 0:
-            self.house_price_shock = random.uniform(-0.5*self.price_shock_range + 100*self.yearly_inflation,0.5*self.price_shock_range + 100*self.yearly_inflation)
-            self.yearly_inflation = 0
+        # Introduce a market shock every month and year
+        self.house_price_shock = random.uniform(-0.5*self.price_shock_range + 100*self.yearly_inflation,0.5*self.price_shock_range + 100*self.yearly_inflation)
+        self.yearly_inflation = 0
     
 
         self.schedule_House.step()
