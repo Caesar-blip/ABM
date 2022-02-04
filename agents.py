@@ -5,6 +5,9 @@ from mesa.space import MultiGrid
 import random
 import scipy
 import numpy as np
+import math
+import pandas as pd
+import copy
 
 
 class Household(Agent):
@@ -29,6 +32,9 @@ class Household(Agent):
         self.alpha = np.random.normal(loc = 0.79, scale=0.3)
         self.beta = np.random.normal(loc = 1.13, scale=0.66)
         self.lmbda = np.random.normal(loc = 1.35, scale=2.59)
+
+        self.sold_house = None
+
 
 
     def get_mortgage_quote(self):
@@ -145,7 +151,8 @@ class Household(Agent):
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
                 for house in house_sample:
-                    expected_utility += self.utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
+                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
+                    expected_utility += self.utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy*prob_buy
 
                 # list own house
                 if expected_utility > 0:
@@ -187,7 +194,8 @@ class Household(Agent):
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
                 for house in house_sample:
-                    expected_utility += self.utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
+                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
+                    expected_utility += self.utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy*prob_buy
 
                 # list own house
                 if expected_utility > 0:
@@ -228,6 +236,20 @@ class Household(Agent):
         else:
             return (abs(x)**(beta)*lmbda*(-1))
 
+
+    def get_distance(self, pos2):
+        if self.house == None and self.sold_house == None:
+            return 0
+        else:
+            if self.house != None:
+                x1, y1 = self.house.pos
+            if self.sold_house != None: 
+                x1, y1 = self.sold_house.pos
+        x2, y2 = pos2
+        dx = x1-x2
+        dy = y1-y2
+        return math.sqrt(dx**2+dy**2)
+
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
 
@@ -237,22 +259,44 @@ class Household(Agent):
         Note: you enter this function with assumption that you do NOT have a house anymore! (otherwise have to change this function)
         """
         # try to buy a house
-        if self.strategy == "naive":
-            available_houses.sort(key=lambda x: x.priceChangeForecast, reverse=True)
-        else:
-            available_houses.sort(key=lambda x: x.priceChangeForecast_av, reverse=True)
+        
+        if self.sold_house == None:
+
+            #available_houses_new=copy.deepcopy(available_houses)
+            available_houses.sort(key=lambda x: x.priceChange, reverse=True)
+
+        else: 
+            utility_list = []
+
+            if self.strategy == "naive":
+
+                for house in available_houses:
+                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
+                    utility_list.append(self.utility(x = house.priceChangeForecast-self.sold_house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy)
+
+            if self.strategy == "sophisticated":
+                for house in available_houses:
+                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
+                    utility_list.append(self.utility(x = house.priceChangeForecast_av-self.sold_house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy)
+                    
+            #house_options = pd.DataFrame({"available_houses": available_houses, "utility_list": utility_list})
+            #house_options.sort_values(by=utility_list, ascending=False)
+
+            #available_houses_new=house_options.available_houses
+
+            available_houses = [x for _,x in sorted(zip(utility_list, available_houses), reverse = True)]
 
         for house in available_houses:
             if house.owner == self:
                 continue
             # buy the best house avalaible
-
             mortgage_quote = self.get_mortgage_quote()
             available_money = self.savings + mortgage_quote
             if house.price < available_money:
                 # wire the money
                 previous_owner = house.owner
                 if previous_owner:
+                    previous_owner.sold_house=previous_owner.house
                     previous_owner.house = None
                     MultiGrid.move_agent(self=self.model.grid, agent=previous_owner, pos=(0, 0))
 
