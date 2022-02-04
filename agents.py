@@ -405,7 +405,7 @@ class House(Agent):
         # Price shock once every year
         if self.model.period % 12 == 0:
             
-            if random.random() < 0.7:
+            if random.random() < 0.95:
                 self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock,
                                                              sigma=2 * self.model.house_price_shock) / 100)
             else:
@@ -414,12 +414,12 @@ class House(Agent):
         else:                                                     
         
         # add milder monthly price shocks
-            if random.random() < 0.7:
-                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock*0.7,
-                                                             sigma=2 * self.model.house_price_shock*0.5) / 100)
+            if random.random() < 0.95:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock*0.2,
+                                                             sigma=2 * self.model.house_price_shock*0.2) / 100)
             else:
-                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock*0.7,
-                                                             sigma=2 * self.model.house_price_shock*0.5) / 100)*(-1)
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock*0.2,
+                                                             sigma=2 * self.model.house_price_shock*0.2) / 100)*(-1)
     
         self.price += self.priceChange
 
