@@ -25,7 +25,7 @@ class HousingMarket(Model):
                  payoff_perc_freehold=0.0025, inflation=0.02, house_price=400_000,
                  chi_parameter=6.5, maximum_age=100, minimum_age=20, age_utility_scaling = 0.01,
                  maximum_moving_age=65, bank_income_multiplier=8, fraction_good_houses=0.5,
-                 price_shock_range=6, s_policy=False, a_policy=False, income_policy=False):
+                 price_shock_range=6, s_policy=False, a_policy=False):
         super().__init__()
         self.height = width
         self.width = height
@@ -68,7 +68,6 @@ class HousingMarket(Model):
 
         self.s_policy = s_policy
         self.a_policy = a_policy
-        self.income_policy = income_policy
 
         # keep track of number of periods that the model goes through, one step increases the period by 1
         self.period = 0
@@ -87,7 +86,7 @@ class HousingMarket(Model):
                 "Average Household Income": average_household_income,
                 'Mean Household Age': mean_household_age,
                 'Mean House Price': mean_house_price,
-                'Mean Forecasted House Price Change': mean_house_price_change,
+                'Mean House Price Change': mean_house_price_change,
                 "Age -25 amount": age_25_amount,
                 "Age 25-34 amount": age_25_34_amount,
                 "Age 35-44 amount": age_35_44_amount,
@@ -223,10 +222,9 @@ class HousingMarket(Model):
         self.income_distribution[:, 1] *= 1 + self.monthly_inflation
         self.yearly_inflation += self.monthly_inflation
 
-        # Introduce a market shock every year
-        if self.period % 12 == 0:
-            self.house_price_shock = random.uniform(-0.5*self.price_shock_range + 100*self.yearly_inflation,0.5*self.price_shock_range + 100*self.yearly_inflation)
-            self.yearly_inflation = 0
+        # Introduce a market shock every month and year
+        self.house_price_shock = random.uniform(-0.5*self.price_shock_range + 100*self.yearly_inflation,0.5*self.price_shock_range + 100*self.yearly_inflation)
+        self.yearly_inflation = 0
     
 
         self.schedule_House.step()

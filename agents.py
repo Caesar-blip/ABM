@@ -5,6 +5,9 @@ from mesa.space import MultiGrid
 import random
 import scipy
 import numpy as np
+import math
+import pandas as pd
+import copy
 
 
 class Household(Agent):
@@ -29,6 +32,9 @@ class Household(Agent):
         self.alpha = np.random.normal(loc = 0.79, scale=0.3)
         self.beta = np.random.normal(loc = 1.13, scale=0.66)
         self.lmbda = np.random.normal(loc = 1.35, scale=2.59)
+
+        self.sold_house = None
+
 
 
     def get_mortgage_quote(self):
@@ -145,7 +151,8 @@ class Household(Agent):
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
                 for house in house_sample:
-                    expected_utility += self.utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
+                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
+                    expected_utility += self.utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy*prob_buy
 
                 # list own house
                 if expected_utility > 0:
@@ -187,7 +194,8 @@ class Household(Agent):
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
                 for house in house_sample:
-                    expected_utility += self.utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)*prob_buy
+                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
+                    expected_utility += self.utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy*prob_buy
 
                 # list own house
                 if expected_utility > 0:
@@ -213,18 +221,11 @@ class Household(Agent):
                 self.model.remove_agent(self)
 
         # S_Policy Implementation
-        if self.model.s_policy == True and self.model.period > 0 and self.age == 20:
+        if self.model.s_policy == True and self.model.period > 30 and self.age == 20:
             self.savings += 20_000
 
         if self.model.a_policy == True and self.model.period > 30 and self.age == 75:
             self.savings += 40_000
-
-        '''
-        Income Policy: if 25, 0 months and lower 10% then grant
-        '''
-        if self.model.income_policy == True and self.age and self.model.period == 1 and self.bin in range(0,15):
-            self.savings += 20_000
-
 
     def utility(self, x, alpha, beta, lmbda):
         # This function defines the agents' utility, where x is the expected gain or loss, alpha and beta are risk attitude parameters for gains and losses respectively and lambda is the loss aversion constant.
@@ -235,6 +236,20 @@ class Household(Agent):
         else:
             return (abs(x)**(beta)*lmbda*(-1))
 
+
+    def get_distance(self, pos2):
+        if self.house == None and self.sold_house == None:
+            return 0
+        else:
+            if self.house != None:
+                x1, y1 = self.house.pos
+            if self.sold_house != None: 
+                x1, y1 = self.sold_house.pos
+        x2, y2 = pos2
+        dx = x1-x2
+        dy = y1-y2
+        return math.sqrt(dx**2+dy**2)
+
     def buy_house(self, available_houses):
         """Method that let's household buy a house from antoher household
 
@@ -244,22 +259,44 @@ class Household(Agent):
         Note: you enter this function with assumption that you do NOT have a house anymore! (otherwise have to change this function)
         """
         # try to buy a house
-        if self.strategy == "naive":
-            available_houses.sort(key=lambda x: x.priceChangeForecast, reverse=True)
-        else:
-            available_houses.sort(key=lambda x: x.priceChangeForecast_av, reverse=True)
+        
+        if self.sold_house == None:
+
+            #available_houses_new=copy.deepcopy(available_houses)
+            available_houses.sort(key=lambda x: x.priceChange, reverse=True)
+
+        else: 
+            utility_list = []
+
+            if self.strategy == "naive":
+
+                for house in available_houses:
+                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
+                    utility_list.append(self.utility(x = house.priceChangeForecast-self.sold_house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy)
+
+            if self.strategy == "sophisticated":
+                for house in available_houses:
+                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
+                    utility_list.append(self.utility(x = house.priceChangeForecast_av-self.sold_house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy)
+                    
+            #house_options = pd.DataFrame({"available_houses": available_houses, "utility_list": utility_list})
+            #house_options.sort_values(by=utility_list, ascending=False)
+
+            #available_houses_new=house_options.available_houses
+
+            available_houses = [x for _,x in sorted(zip(utility_list, available_houses), reverse = True)]
 
         for house in available_houses:
             if house.owner == self:
                 continue
             # buy the best house avalaible
-
             mortgage_quote = self.get_mortgage_quote()
             available_money = self.savings + mortgage_quote
             if house.price < available_money:
                 # wire the money
                 previous_owner = house.owner
                 if previous_owner:
+                    previous_owner.sold_house=previous_owner.house
                     previous_owner.house = None
                     MultiGrid.move_agent(self=self.model.grid, agent=previous_owner, pos=(0, 0))
 
@@ -338,9 +375,13 @@ class House(Agent):
     def __init__(self, unique_id, model, pos):
         super().__init__(unique_id, model)
         self.pos = pos
+
         # set initial house price
-        self.house_price_change = random.random() if random.random() < self.model.fraction_good_houses else random.random() * (-1)
+
         self.price = self.set_initial_house_price()
+
+        self.house_price_change = random.random() if random.random() < self.model.fraction_good_houses else random.random() * (-1)
+
         self.priceChange = self.price * random.normalvariate(mu=self.house_price_change,
                                                              sigma=2 * self.house_price_change) / 100
         self.priceChange_past = self.price * random.normalvariate(mu=self.house_price_change,
@@ -349,22 +390,43 @@ class House(Agent):
         self.owner = None
         self.available = True
 
+        # naive agents assume the price change in the next period will be the same as in the last period
+        self.priceChangeForecast = self.priceChange
+
+        # more sophisticated agents have a memory and use a weighted average to make a forecast
+        self.priceChange_past = self.priceChange_past + self.priceChange
+        self.priceChangeForecast_av = (self.priceChange_past) / (self.model.period + 1)
+
+
     def set_availability(self, set_to):
         self.available = set_to
 
     def step(self):
         # Price shock once every year
         if self.model.period % 12 == 0:
-            self.price += (self.price * random.normalvariate(mu=self.model.house_price_shock,
+            
+            if random.random() < 0.95:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock,
                                                              sigma=2 * self.model.house_price_shock) / 100)
-            # redraw the house change in the new market to introduce some stochasticity
-            self.house_price_change = random.random() if random.random() < 0.5 else random.random() * (-1)
-
-        self.priceChange = self.price * random.normalvariate(mu=self.house_price_change,
-                                                             sigma=2 * self.house_price_change) / 100
+            else:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock,
+                                                             sigma=2 * self.model.house_price_shock) / 100)*(-1)
+        else:                                                     
+        
+        # add milder monthly price shocks
+            if random.random() < 0.95:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock*0.2,
+                                                             sigma=2 * self.model.house_price_shock*0.2) / 100)
+            else:
+                self.priceChange = (self.price * random.normalvariate(mu=self.model.house_price_shock*0.2,
+                                                             sigma=2 * self.model.house_price_shock*0.2) / 100)*(-1)
+    
         self.price += self.priceChange
-        self.priceChangeForecast = self.price + self.priceChange
 
+        # naive agents assume the price change in the next period will be the same as in the last period
+        self.priceChangeForecast = self.priceChange
+
+        # more sophisticated agents have a memory and use a weighted average to make a forecast
         self.priceChange_past = self.priceChange_past + self.priceChange
         self.priceChangeForecast_av = (self.priceChange_past) / (self.model.period + 1)
 

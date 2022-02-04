@@ -86,7 +86,7 @@ mean_house_price_chart = ChartModule([
                     data_collector_name='datacollector')
 
 mean_forecasted_price_chart = ChartModule([
-                    {"Label": "Mean Forecasted House Price Change", "Color": 'green'}],
+                    {"Label": "Mean House Price Change", "Color": 'green'}],
                     canvas_width=500, canvas_height=200,
                     data_collector_name='datacollector')
 

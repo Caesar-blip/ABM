@@ -289,12 +289,12 @@ def mean_house_price(model):
 
 
 def mean_house_price_change(model):
-    priceChangeForecast = 0
+    priceChange = 0
     counter = 0
     for agent in model.schedule_House.agents:
-        priceChangeForecast += agent.priceChangeForecast
+        priceChange += agent.priceChange
         counter += 1
-    return priceChangeForecast / counter
+    return priceChange / counter
 
 
 def get_inflation(model):
