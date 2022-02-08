@@ -25,7 +25,8 @@ class HousingMarket(Model):
                  payoff_perc_freehold=0.0025, inflation=0.02, house_price=400_000,
                  chi_parameter=6.5, maximum_age=100, minimum_age=20, age_utility_scaling = 0.01,
                  maximum_moving_age=65, bank_income_multiplier=8, fraction_good_houses=0.5,
-                 price_shock_range=6, s_policy=False, a_policy=False, income_policy=False):
+                 price_shock_range=6, s_policy=False, a_policy=False, income_policy=False,
+                 alpha_mean = .79, beta_mean = 1.13, lmbda_mean = 1.35):
         super().__init__()
         self.height = width
         self.width = height
@@ -69,6 +70,11 @@ class HousingMarket(Model):
         self.s_policy = s_policy
         self.a_policy = a_policy
         self.income_policy = income_policy
+
+        # behavioural data
+        self.alpha_mean = alpha_mean
+        self.beta_mean = beta_mean
+        self.lmbda_mean = lmbda_mean
 
         # keep track of number of periods that the model goes through, one step increases the period by 1
         self.period = 0

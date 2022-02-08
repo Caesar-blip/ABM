@@ -29,9 +29,9 @@ class Household(Agent):
         self.months_renting = 0
 
         # Fix risk attitude parameters
-        self.alpha = np.random.normal(loc = 0.79, scale=0.3)
-        self.beta = np.random.normal(loc = 1.13, scale=0.66)
-        self.lmbda = np.random.normal(loc = 1.35, scale=2.59)
+        self.alpha = np.random.normal(loc = self.model.alpha_mean, scale=0.3)
+        self.beta = np.random.normal(loc = self.model.beta_mean, scale=0.66)
+        self.lmbda = np.random.normal(loc = self.model.lmbda_mean, scale=2.59)
 
         self.sold_house = None
 
@@ -94,11 +94,9 @@ class Household(Agent):
             self.monthly_ageing = 0
 
         # Update the income of the agent
-        # print(f" income = {self.income} \n bin = {self.bin} \n percentile = {self.percentile}")
         self.income, self.bin, self.percentile = self.update_income_bin_percentile()
         # calculate equity
         if self.house:
-            # print(self.house.price)
             self.savings += self.model.payoff_perc_freehold * self.house.price
             self.equity = self.house.price + self.savings - self.mortgage
             self.months_renting = 0
@@ -117,7 +115,7 @@ class Household(Agent):
         elif (self.house and self.strategy == "naive"):
             # not everybody is actively checking the market at every step
 
-            if random.random() < (1 - self.model.age_utility_scaling * self.age) or self.empty_neighborhood == True:
+            if random.random() < (1 - self.model.age_utility_scaling * self.age) or self.empty_neighborhood() == True:
 
                 # get new mortgage quote based on current income
                 mortgage_quote = self.get_mortgage_quote()
@@ -131,7 +129,7 @@ class Household(Agent):
                 # calculate total available money for buying a house
                 available_money = mortgage_quote + house_mortgage_differential + self.savings
 
-                # sample houses (in neighborhood?)
+                # sample houses
                 house_sample = random.sample(available_houses, k = len(available_houses)) # k is to be adjusted depending on what's realistic
 
                 # obtain probability of ending up in a given house:
@@ -151,8 +149,7 @@ class Household(Agent):
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
                 for house in house_sample:
-                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
-                    expected_utility += self.utility(x = house.priceChangeForecast-self.house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy*prob_buy
+                    expected_utility += self.utility(house)*prob_buy
 
                 # list own house
                 if expected_utility > 0:
@@ -160,7 +157,7 @@ class Household(Agent):
 
         elif (self.house and self.strategy == "sophisticated"):
             # not everybody is actively checking the market at every step
-            if random.random() < (1 - self.model.age_utility_scaling * self.age) or self.empty_neighborhood == True:
+            if random.random() < (1 - self.model.age_utility_scaling * self.age) or self.empty_neighborhood() == True:
 
                 # get new mortgage quote based on current income
                 mortgage_quote = self.get_mortgage_quote()
@@ -194,8 +191,7 @@ class Household(Agent):
                 # obtain expected utility of buying a new house on the market:
                 expected_utility = 0
                 for house in house_sample:
-                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
-                    expected_utility += self.utility(x = house.priceChangeForecast_av-self.house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy*prob_buy
+                    expected_utility += self.utility(house)*prob_buy
 
                 # list own house
                 if expected_utility > 0:
@@ -234,17 +230,26 @@ class Household(Agent):
             self.savings += 20_000
 
 
-    def utility(self, x, alpha, beta, lmbda):
-        # This function defines the agents' utility, where x is the expected gain or loss, alpha and beta are risk attitude parameters for gains and losses respectively and lambda is the loss aversion constant.
+    def utility(self, house):
+        # This function defines the agents' utility, where x is the expected gain or loss, alpha and beta 
+        # are risk attitude parameters for gains and losses respectively and lambda is the loss aversion constant.
+        if not house:
+            return 0
+
+        if self.strategy=="naive":
+            x = house.priceChangeForecast - self.sold_house.priceChangeForecast if self.sold_house else house.priceChangeForecast
+        else:
+            x = house.priceChangeForecast_av - self.sold_house.priceChangeForecast_av if self.sold_house else house.priceChangeForecast_av
+        distance = self.get_distance(house)
         if x > 0:
-            return x**alpha
+            return x**self.alpha - distance
         if x == 0:
             return 0
         else:
-            return (abs(x)**(beta)*lmbda*(-1))
+            return (abs(x)**(self.beta)*self.lmbda*(-1)) - distance
 
 
-    def get_distance(self, pos2):
+    def get_distance(self, house):
         if self.house == None and self.sold_house == None:
             return 0
         else:
@@ -252,7 +257,7 @@ class Household(Agent):
                 x1, y1 = self.house.pos
             if self.sold_house != None: 
                 x1, y1 = self.sold_house.pos
-        x2, y2 = pos2
+        x2, y2 = house.pos
         dx = x1-x2
         dy = y1-y2
         return math.sqrt(dx**2+dy**2)
@@ -268,30 +273,15 @@ class Household(Agent):
         # try to buy a house
         
         if self.sold_house == None:
-
-            #available_houses_new=copy.deepcopy(available_houses)
             available_houses.sort(key=lambda x: x.priceChange, reverse=True)
 
         else: 
-            utility_list = []
-
-            if self.strategy == "naive":
-
-                for house in available_houses:
-                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
-                    utility_list.append(self.utility(x = house.priceChangeForecast-self.sold_house.priceChangeForecast, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy)
-
-            if self.strategy == "sophisticated":
-                for house in available_houses:
-                    distance_xy = 0 if self.get_distance(house.pos) == 0 else abs((self.get_distance(house.pos)**self.beta))
-                    utility_list.append(self.utility(x = house.priceChangeForecast_av-self.sold_house.priceChangeForecast_av, alpha = self.alpha, beta = self.beta, lmbda = self.lmbda)-distance_xy)
-                    
-            #house_options = pd.DataFrame({"available_houses": available_houses, "utility_list": utility_list})
-            #house_options.sort_values(by=utility_list, ascending=False)
-
-            #available_houses_new=house_options.available_houses
-
-            available_houses = [x for _,x in sorted(zip(utility_list, available_houses), reverse = True)]
+            for house in available_houses:
+                house.set_utility(self.utility(house))
+            
+            
+            # resort the avalaible houses list to be sorted on utility
+            available_houses.sort(key=lambda x: x.utility, reverse=True)
 
         for house in available_houses:
             if house.owner == self:
@@ -352,18 +342,21 @@ class Household(Agent):
     def empty_neighborhood(self):
        # an agent looks around and checks if the majority of houses in their vincinity are empty
        # if they are, the agent decides to move away too
-       houses = 0
-       for neighbor in self.model.grid.neighbor_iter(self.pos):
-           if neighbor.type != self.type:
-               houses += 1
-       empty_houses = 0
-       for neighbor in self.model.grid.neighbor_iter(self.pos):
-           if neighbor.type != self.type & neighbor.available:
-               empty_houses += 1
-       if empty_houses / houses > 0.4:
-           return True
-       else:
-           return False
+        houses = 0
+        empty_houses = 0
+        for neighbor in self.model.grid.neighbor_iter(self.pos):
+            if type(neighbor) == House:
+                houses += 1
+                if neighbor.available:
+                    empty_houses+=1
+        
+        
+        if houses > 0: 
+            if empty_houses / houses > 0.4:
+                return True
+            else:
+                return False
+        return True
 
 
     def get_mortgage_quote(self):
@@ -404,9 +397,15 @@ class House(Agent):
         self.priceChange_past = self.priceChange_past + self.priceChange
         self.priceChangeForecast_av = (self.priceChange_past) / (self.model.period + 1)
 
+        self.utility = 0
+
 
     def set_availability(self, set_to):
         self.available = set_to
+
+    def set_utility(self, set_to):
+        self.utility = set_to
+    
 
     def step(self):
         # Price shock once every year
