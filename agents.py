@@ -217,7 +217,7 @@ class Household(Agent):
                 self.model.remove_agent(self)
 
         # S_Policy Implementation
-        if self.model.s_policy == True and self.model.period > 30 and self.age == 20:
+        if self.model.s_policy == True and self.model.period > 30 and self.age == 20 and self.monthly_ageing == 0:
             self.savings += 20_000
 
         if self.model.a_policy == True and self.model.period > 30 and self.age == 75:
@@ -226,7 +226,7 @@ class Household(Agent):
         '''
         Income Policy: if 25, 0 months and lower 10% then grant
         '''
-        if self.model.income_policy == True and self.age and self.model.period == 1 and self.bin in range(0,15):
+        if self.model.income_policy == True and self.age == 25 and self.monthly_ageing == 0 and self.model.period == 1 and self.bin in range(0,15):
             self.savings += 20_000
 
 
