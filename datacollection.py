@@ -303,3 +303,7 @@ def get_inflation(model):
 
 def get_total_inflation(model):
     return model.total_inflation
+
+
+def percentage_owned(model):
+    return len([house for house in model.schedule_House.agents if house.available]) / len(model.schedule_House.agents) * 100 

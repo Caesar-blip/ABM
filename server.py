@@ -109,7 +109,7 @@ server = ModularServer(
                     {'initial_houses': 150,
                      'initial_households': 150,
                      's_policy': False,
-                     'a_policy': True
+                     'a_policy': False
                      })
 
 server.port = 8522
