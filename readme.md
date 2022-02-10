@@ -1,4 +1,4 @@
-# Running the Housing Market model
+# Dutch Housing Market model
 
 ## Setup
 
