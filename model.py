@@ -20,12 +20,13 @@ class HouseActivation(RandomActivation):
 
 
 class HousingMarket(Model):
-    def __init__(self, height=20, width=20, initial_houses=100, initial_households=150,
+    def __init__(self, height=20, width=20, initial_houses=150, initial_households=150,
                  savings_lower=0, savings_upper=100000, price_lower=100000, price_upper=1000000,
                  payoff_perc_freehold=0.0025, inflation=0.02, house_price=400_000,
                  chi_parameter=6.5, maximum_age=100, minimum_age=20, age_utility_scaling = 0.01,
                  maximum_moving_age=65, bank_income_multiplier=8, fraction_good_houses=0.5,
-                 price_shock_range=6, s_policy=False, a_policy=False):
+                 price_shock_range=6, s_policy=False, a_policy=False, income_policy=False,
+                 alpha_mean = .79, beta_mean = 1.13, lmbda_mean = 1.35):
         super().__init__()
         self.height = width
         self.width = height
@@ -68,6 +69,12 @@ class HousingMarket(Model):
 
         self.s_policy = s_policy
         self.a_policy = a_policy
+        self.income_policy = income_policy
+
+        # behavioural data
+        self.alpha_mean = alpha_mean
+        self.beta_mean = beta_mean
+        self.lmbda_mean = lmbda_mean
 
         # keep track of number of periods that the model goes through, one step increases the period by 1
         self.period = 0
@@ -96,7 +103,8 @@ class HousingMarket(Model):
                 "Age 75+ amount": age_75_plus_amount,
                 "Agent count": total_agents,
                 "Inflation": get_inflation,
-                "Total Inflation": get_total_inflation
+                "Total Inflation": get_total_inflation,
+                "Percentage Owned": percentage_owned
             },
             agent_reporters={
                 "Income": collect_income,
@@ -220,11 +228,9 @@ class HousingMarket(Model):
         self.monthly_inflation = np.random.normal(loc=self.inflation/12, scale=.00115, size=1)[0]
         self.total_inflation += self.monthly_inflation
         self.income_distribution[:, 1] *= 1 + self.monthly_inflation
-        self.yearly_inflation += self.monthly_inflation
 
         # Introduce a market shock every month and year
-        self.house_price_shock = random.uniform(-0.5*self.price_shock_range + 100*self.yearly_inflation,0.5*self.price_shock_range + 100*self.yearly_inflation)
-        self.yearly_inflation = 0
+        self.house_price_shock = random.uniform(-0.5*self.price_shock_range + 100*self.monthly_inflation,0.5*self.price_shock_range + 100*self.monthly_inflation)
     
 
         self.schedule_House.step()
